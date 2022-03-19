@@ -7,48 +7,126 @@ import (
 )
 
 var (
-	// ErrCannotConverge indicates an issue with convergance if learning rate is too big.
-	ErrCannotConverge = errors.New("cannot converge")
-	// ErrNotTrained indicates that the model is not trained.
-	ErrNotTrained = errors.New("model not trained")
 	// ErrInvalidFeatureVector indicates that the feature vector is not consistent.
 	ErrInvalidFeatureVector = errors.New("invalid feature vector")
+	// ErrInvalidModelType indicates that the input model is invalid.
+	ErrInvalidModelType = errors.New("invalid model type")
+	// ErrNotTrainedModel indicates that the model is not trained.
+	ErrNotTrainedModel = errors.New("not trained model")
 )
 
-// Model represents the linear regression model.
-type Model struct {
-	coefficients regression.Vector
-	learningRate float64
+type optimisationType int
+
+// Discriminators that allow distinguish between optimisation type.
+const (
+	batchGd optimisationType = iota + 1
+	stochasticGd
+	normalEquation
+)
+
+// A Model is a linear regression model.
+type Model interface {
+	// Predict returns the predicated target value for the given input.
+	Predict(x regression.Vector) (float64, error)
+	// GetCoefficients returns the trained linear regression model's coefficients.
+	GetCoefficients() (regression.Vector, error)
+	// R2 returns 'R squared'.
+	R2() (float64, error)
 }
 
-func NewModel(lr float64) Model {
-	return Model{learningRate: lr}
+// NewModel returns a non-nil, base linear regression model.
+// By default, base model passed to the Train function uses
+// an analytical approach (normal equation) to find the coefficients.
+func NewModel(learningRate float64) Model {
+	return model{learningRate: learningRate, optimisationType: normalEquation}
 }
 
-func (m *Model) GetLearningRate() float64 {
-	return m.learningRate
+// WithBatchGradientDescent returns a batch gradient descent model.
+// Passed to the Train function uses an iterative approach (batch gradient descent)
+// to find the coefficients. n indicates how many times the loop is invoked.
+func WithBatchGradientDescent(m Model, n int) (Model, error) {
+	b, err := getBaseModel(m)
+	if err != nil {
+		return model{}, err
+	}
+	b.optimisationType = batchGd
+	return gdModel{model: b, iterations: n}, nil
 }
 
-func (m *Model) SetLearningRate(lr float64) {
-	m.learningRate = lr
+// WithStochasticGradientDescent returns a stochastic gradient descent model.
+// Passed to the Train function uses an iterative approach (stochastic gradient descent)
+// to find the coefficients. n indicates how many times the loop is invoked.
+func WithStochasticGradientDescent(m Model, n int) (Model, error) {
+	b, err := getBaseModel(m)
+	if err != nil {
+		return model{}, err
+	}
+	b.optimisationType = stochasticGd
+	return gdModel{model: b, iterations: n}, nil
 }
 
-// Predict returns the target value of given input.
-func (m *Model) Predict(x regression.Vector) (float64, error) {
+// WithAutomaticConvergence enriches the gradient descent model with an
+// automatic convergence test.
+// Automatic convergence test declares convergance if cost function decreases
+// by less than t.
+func WithAutomaticConvergence(m Model, t float64) (Model, error) {
+	b, err := getBaseModel(m)
+	if err != nil {
+		return model{}, err
+	}
+	if b.optimisationType == normalEquation {
+		return model{}, ErrInvalidModelType
+	}
+	return gdAutoConvModel{model: b, threshold: t}, nil
+}
+
+func getBaseModel(parent Model) (model, error) {
+	switch m := parent.(type) {
+	case model:
+		return m, nil
+	case gdModel:
+		return m.model, nil
+	case gdAutoConvModel:
+		return m.model, nil
+	default:
+		return model{}, ErrInvalidModelType
+	}
+}
+
+// model represents base training model.
+type model struct {
+	learningRate     float64
+	coefficients     regression.Vector
+	r2               float64
+	optimisationType optimisationType
+}
+
+func (m model) Predict(x regression.Vector) (float64, error) {
 	if m.coefficients == nil {
-		return 0, ErrNotTrained
+		return 0, ErrNotTrainedModel
 	}
 	return calcHypho(x, m.coefficients)
 }
 
-// GetCoefficients gets the trained linear regression model's coefficients.
-func (m *Model) GetCoefficients() (regression.Vector, error) {
+func (m model) GetCoefficients() (regression.Vector, error) {
 	if m.coefficients == nil {
-		return regression.Vector{}, ErrNotTrained
+		return nil, ErrNotTrainedModel
 	}
 	return m.coefficients, nil
 }
 
+func (m model) R2() (float64, error) {
+	if m.coefficients == nil {
+		return 0, ErrNotTrainedModel
+	}
+	return m.r2, nil
+}
+
+// calcHypho calculates the hyphothesis function.
+//
+// The hyphothesis equals h(x)=OX, where O stands for a coefficients vector
+// and X is a feature vector (with dummy feature at the first position equals 1).
+// The dummy feature is added on-fly during the calculation so the input vector should not contain it.
 func calcHypho(x regression.Vector, coeff regression.Vector) (float64, error) {
 	if len(x)+1 != len(coeff) {
 		return 0, ErrInvalidFeatureVector
@@ -60,4 +138,18 @@ func calcHypho(x regression.Vector, coeff regression.Vector) (float64, error) {
 		y += x[i] * coeff[i+1]
 	}
 	return y, nil
+}
+
+// gdModel is a gradient descent model that carries the information
+// about the number of iterations before the algorithm converge.
+type gdModel struct {
+	model
+	iterations int
+}
+
+// gdModel is a gradient descent model that carries
+// the information about the automatic convergence test threshold.
+type gdAutoConvModel struct {
+	model
+	threshold float64
 }
