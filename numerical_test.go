@@ -21,7 +21,7 @@ func TestTrainWithGradientDescentBatch(t *testing.T) {
 			name:         "n=1, m=97, alpha=0.01, iterations=1500",
 			dataFileName: "n=1_m=97.txt",
 			opt:          WithConverganceAfter(NewTrainingOptions(0.01, BatchGradientDescent), 1500),
-			want:         model{coefficients: []float64{-3.6303, 1.1664}},
+			want:         model{coeffs: []float64{-3.6303, 1.1664}},
 		},
 	}
 	for _, tt := range tests {

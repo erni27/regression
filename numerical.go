@@ -118,7 +118,7 @@ func TrainWithGradientDescent(ctx context.Context, opt TrainingOptions, ts Train
 		if r.err != nil {
 			return nil, r.err
 		}
-		return model{coefficients: r.coeffs}, nil
+		return model{coeffs: r.coeffs}, nil
 	case <-ctx.Done():
 		escape = true
 		return nil, ctx.Err()
