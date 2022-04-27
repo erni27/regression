@@ -1,9 +1,7 @@
-package linear
+package regression
 
 import (
 	"errors"
-
-	"github.com/erni27/regression"
 )
 
 var (
@@ -15,7 +13,7 @@ var (
 
 // TrainingExample represents a single (features, target) example.
 type TrainingExample struct {
-	Features regression.Vector
+	Features Vector
 	Target   float64
 }
 
@@ -25,27 +23,27 @@ type TrainingSet []TrainingExample
 // A Model is a linear regression model.
 type Model interface {
 	// Predict returns the predicated target value for the given input.
-	Predict(x regression.Vector) (float64, error)
+	Predict(x Vector) (float64, error)
 	// GetCoefficients returns the trained linear regression model's coefficients.
-	GetCoefficients() (regression.Vector, error)
+	GetCoefficients() (Vector, error)
 	// R2 returns 'R squared'.
 	R2() (float64, error)
 }
 
 // model represents base training model.
 type model struct {
-	coefficients regression.Vector
+	coefficients Vector
 	r2           float64
 }
 
-func (m model) Predict(x regression.Vector) (float64, error) {
+func (m model) Predict(x Vector) (float64, error) {
 	if m.coefficients == nil {
 		return 0, ErrNotTrainedModel
 	}
 	return calcHypho(x, m.coefficients)
 }
 
-func (m model) GetCoefficients() (regression.Vector, error) {
+func (m model) GetCoefficients() (Vector, error) {
 	if m.coefficients == nil {
 		return nil, ErrNotTrainedModel
 	}
@@ -67,7 +65,7 @@ func (m model) String() string {
 //
 // The hyphothesis equals h(x)=OX, where O stands for a coefficients vector and X is a feature vector.
 // The dummy feature is added on-fly during the calculation so the input vector should not contain it.
-func calcHypho(x regression.Vector, coeff regression.Vector) (float64, error) {
+func calcHypho(x Vector, coeff Vector) (float64, error) {
 	if len(x)+1 != len(coeff) {
 		return 0, ErrInvalidFeatureVector
 	}

@@ -1,19 +1,17 @@
-package linear
+package regression
 
 import (
 	"testing"
-
-	"github.com/erni27/regression"
 )
 
 func TestPredict(t *testing.T) {
 	type fields struct {
 		learningRate float64
-		coefficients regression.Vector
+		coefficients Vector
 		r2           float64
 	}
 	type args struct {
-		x regression.Vector
+		x Vector
 	}
 	tests := []struct {
 		name    string

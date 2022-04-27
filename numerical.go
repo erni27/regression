@@ -1,12 +1,10 @@
-package linear
+package regression
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"math"
-
-	"github.com/erni27/regression"
 )
 
 type optimisationMethod int
@@ -94,14 +92,14 @@ var (
 //
 func TrainWithGradientDescent(ctx context.Context, opt TrainingOptions, ts TrainingSet) (Model, error) {
 	type result struct {
-		coeffs regression.Vector
+		coeffs Vector
 		err    error
 	}
 	c := make(chan result, 1)
 	escape := false
 	go func() {
 		iterations := int(opt.converganceOpt.value)
-		var coeffs regression.Vector = make([]float64, len(ts[0].Features)+1)
+		var coeffs Vector = make([]float64, len(ts[0].Features)+1)
 		var err error
 		for i := 0; i < iterations; i++ {
 			coeffs, err = calcCoefficients(coeffs, ts, opt.learningRate)
@@ -127,8 +125,8 @@ func TrainWithGradientDescent(ctx context.Context, opt TrainingOptions, ts Train
 	}
 }
 
-func calcCoefficients(coeffs regression.Vector, ts TrainingSet, lr float64) (regression.Vector, error) {
-	var r regression.Vector = make([]float64, len(coeffs))
+func calcCoefficients(coeffs Vector, ts TrainingSet, lr float64) (Vector, error) {
+	var r Vector = make([]float64, len(coeffs))
 	n := len(ts[0].Features)
 	for j := 0; j < n+1; j++ {
 		g, err := calcPartialDerivative(ts, coeffs, j)
@@ -149,12 +147,12 @@ func calcCoefficients(coeffs regression.Vector, ts TrainingSet, lr float64) (reg
 // 	threshold float64,
 // ) (Model, error) {
 // 	type result struct {
-// 		coeff regression.Vector
+// 		coeff Vector
 // 		err   error
 // 	}
 // 	ch := make(chan result)
 // 	n := len(ts[0].Features)
-// 	var curr, next regression.Vector = make([]float64, n+1), make([]float64, n+1)
+// 	var curr, next Vector = make([]float64, n+1), make([]float64, n+1)
 // 	go func() {
 // 		<-ctx.Done()
 // 		ch <- result{coeff: curr, err: ctx.Err()}
@@ -190,7 +188,7 @@ func calcCoefficients(coeffs regression.Vector, ts TrainingSet, lr float64) (reg
 // }
 
 // calcPartialDerivative calculates partial derivative of a cost function (LMS).
-func calcPartialDerivative(ts TrainingSet, coeff regression.Vector, j int) (float64, error) {
+func calcPartialDerivative(ts TrainingSet, coeff Vector, j int) (float64, error) {
 	// Derivative calculation differs if j equals zero.
 	// In that case dummy feature should be taken into an account.
 	calculate := func(te TrainingExample) (float64, error) {
@@ -228,7 +226,7 @@ func calcPartialDerivative(ts TrainingSet, coeff regression.Vector, j int) (floa
 }
 
 // hasBeenConverged performs convergence test.
-func hasBeenConverged(ts TrainingSet, oldCoeffs, newCoeffs regression.Vector, t float64) (bool, error) {
+func hasBeenConverged(ts TrainingSet, oldCoeffs, newCoeffs Vector, t float64) (bool, error) {
 	oldCost, err := calcCost(ts, oldCoeffs)
 	if err != nil {
 		return false, err
@@ -245,7 +243,7 @@ func hasBeenConverged(ts TrainingSet, oldCoeffs, newCoeffs regression.Vector, t 
 }
 
 // calcCost calculates cost function value for given training set and coefficients.
-func calcCost(ts TrainingSet, coeff regression.Vector) (float64, error) {
+func calcCost(ts TrainingSet, coeff Vector) (float64, error) {
 	var c float64
 	for _, v := range ts {
 		h, err := calcHypho(v.Features, coeff)
