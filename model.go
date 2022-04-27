@@ -2,78 +2,78 @@ package regression
 
 import (
 	"errors"
+	"fmt"
 )
 
 var (
-	// ErrInvalidFeatureVector indicates that the feature vector is not consistent.
+	// ErrInvalidFeatureVector indicates that the feature vector is not consistent with trained model.
 	ErrInvalidFeatureVector = errors.New("invalid feature vector")
 	// ErrNotTrainedModel indicates that the model is not trained.
 	ErrNotTrainedModel = errors.New("not trained model")
 )
 
-// TrainingExample represents a single (features, target) example.
-type TrainingExample struct {
-	Features Vector
-	Target   float64
-}
-
-// TrainingSet represents set of traning examples.
-type TrainingSet []TrainingExample
-
 // A Model is a linear regression model.
 type Model interface {
 	// Predict returns the predicated target value for the given input.
 	Predict(x Vector) (float64, error)
-	// GetCoefficients returns the trained linear regression model's coefficients.
-	GetCoefficients() (Vector, error)
+	// Coefficients returns the trained linear regression model's coefficients.
+	Coefficients() (Vector, error)
 	// R2 returns 'R squared'.
 	R2() (float64, error)
 }
 
-// model represents base training model.
 type model struct {
-	coefficients Vector
-	r2           float64
+	coeffs Vector
+	r2     float64
 }
 
 func (m model) Predict(x Vector) (float64, error) {
-	if m.coefficients == nil {
+	if !m.isTrained() {
 		return 0, ErrNotTrainedModel
 	}
-	return calcHypho(x, m.coefficients)
+	return calcHypho(x, m.coeffs)
 }
 
-func (m model) GetCoefficients() (Vector, error) {
-	if m.coefficients == nil {
+func (m model) Coefficients() (Vector, error) {
+	if !m.isTrained() {
 		return nil, ErrNotTrainedModel
 	}
-	return m.coefficients, nil
+	return m.coeffs, nil
 }
 
 func (m model) R2() (float64, error) {
-	if m.coefficients == nil {
+	if !m.isTrained() {
 		return 0, ErrNotTrainedModel
 	}
 	return m.r2, nil
 }
 
 func (m model) String() string {
-	return ""
+	if !m.isTrained() {
+		return ErrNotTrainedModel.Error()
+	}
+	s := fmt.Sprintf("y = %f", m.coeffs[0])
+	for i, coeff := range m.coeffs[1:] {
+		s += fmt.Sprintf(" + x%d*%f", i+1, coeff)
+	}
+	return s
+}
+
+func (m model) isTrained() bool {
+	return m.coeffs != nil
 }
 
 // calcHypho calculates the hyphothesis function.
 //
 // The hyphothesis equals h(x)=OX, where O stands for a coefficients vector and X is a feature vector.
-// The dummy feature is added on-fly during the calculation so the input vector should not contain it.
-func calcHypho(x Vector, coeff Vector) (float64, error) {
-	if len(x)+1 != len(coeff) {
+func calcHypho(x Vector, coeffs Vector) (float64, error) {
+	n := len(x)
+	if n != len(coeffs)-1 {
 		return 0, ErrInvalidFeatureVector
 	}
 	var y float64
-	y += coeff[0]
-	n := len(x)
-	for i := 0; i < n; i++ {
-		y += x[i] * coeff[i+1]
+	for i, coeff := range coeffs[1:] {
+		y += x[i] * coeff
 	}
-	return y, nil
+	return coeffs[0] + y, nil
 }
