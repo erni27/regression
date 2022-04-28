@@ -1,8 +1,10 @@
 package matrix
 
 import (
-	"math"
+	"reflect"
 	"testing"
+
+	"github.com/erni27/regression/internal/assert"
 )
 
 func TestInverse(t *testing.T) {
@@ -46,22 +48,131 @@ func TestInverse(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := Inverse(tt.matrix)
 			if err != nil {
-				t.Fatalf("Inverse(m [][]float64) error = %v", err)
-				return
+				t.Fatalf("want nil, got error %v", err)
 			}
-			n := len(tt.matrix)
-			for i := 0; i < n; i++ {
-				for j := 0; j < n; j++ {
-					if round(got[i][j], 6) != tt.want[i][j] {
-						t.Fatalf("Inverse(m [][]float64) = %v, want %v", got, tt.want)
-					}
-				}
+			if !assert.Are2DFloatSlicesEqual(got, tt.want, 6) {
+				t.Fatalf("got %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func round(v float64, p int) float64 {
-	r := math.Pow(10, float64(p))
-	return math.Round(v*r) / r
+func TestMultiply(t *testing.T) {
+	tests := []struct {
+		name string
+		x    [][]float64
+		y    [][]float64
+		want [][]float64
+	}{
+		{
+			name: "3x4 x 3x3",
+			x: [][]float64{
+				{1, 0, 1},
+				{2, 1, 1},
+				{0, 1, 1},
+				{1, 1, 2},
+			},
+			y: [][]float64{
+				{1, 2, 1},
+				{2, 3, 1},
+				{4, 2, 2},
+			},
+			want: [][]float64{
+				{5, 4, 3},
+				{8, 9, 5},
+				{6, 5, 3},
+				{11, 9, 6},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := Multiply(tt.x, tt.y)
+			if err != nil {
+				t.Fatalf("want nil, got error %v", err)
+			}
+			if !assert.Are2DFloatSlicesEqual(got, tt.want, -1) {
+				t.Fatalf("got %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTranspose(t *testing.T) {
+	tests := []struct {
+		name   string
+		matrix [][]float64
+		want   [][]float64
+	}{
+		{
+			name: "4x4",
+			matrix: [][]float64{
+				{3, 3, -4, -3},
+				{0, 6, 1, 1},
+				{5, 4, 2, 1},
+				{2, 3, 3, 2},
+			},
+			want: [][]float64{
+				{3, 0, 5, 2},
+				{3, 6, 4, 3},
+				{-4, 1, 2, 3},
+				{-3, 1, 1, 2},
+			},
+		},
+		{
+			name: "3x4",
+			matrix: [][]float64{
+				{0, 1, -1, 1},
+				{2, 2, 0, -2},
+				{1, 1, -2, 0},
+			},
+			want: [][]float64{
+				{0, 2, 1},
+				{1, 2, 1},
+				{-1, 0, -2},
+				{1, -2, 0},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := Transpose(tt.matrix)
+			if err != nil {
+				t.Fatalf("want nil, got error %v", err)
+			}
+			if !assert.Are2DFloatSlicesEqual(got, tt.want, -1) {
+				t.Fatalf("got %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMultiplyByVector(t *testing.T) {
+	tests := []struct {
+		name string
+		x    [][]float64
+		y    []float64
+		want []float64
+	}{
+		{
+			name: "2x3",
+			x: [][]float64{
+				{1, -1, 2},
+				{0, -3, 1},
+			},
+			y:    []float64{2, 1, 0},
+			want: []float64{1, -3},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := MultiplyByVector(tt.x, tt.y)
+			if err != nil {
+				t.Fatalf("want nil, got error %v", err)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("got %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
