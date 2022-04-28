@@ -1,5 +1,14 @@
 package matrix
 
+import "errors"
+
+var (
+	ErrNonInvertibleMatrix = errors.New("matrix is not invertible")
+	ErrOperationNotAllowed = errors.New("operation not allowed")
+	ErrInvalidMatrix       = errors.New("invalid matrix")
+)
+
+// Inverse performs matrix inversion.
 func Inverse(m [][]float64) ([][]float64, error) {
 	n := len(m)
 	a := make([][]float64, n)
@@ -77,4 +86,72 @@ func Inverse(m [][]float64) ([][]float64, error) {
 		}
 	}
 	return r, nil
+}
+
+// Multiply produces matrix product z=xy.
+func Multiply(x [][]float64, y [][]float64) ([][]float64, error) {
+	if !IsValid(x) || !IsValid(y) {
+		return nil, ErrInvalidMatrix
+	}
+	m, n, p := len(x), len(y), len(y[0])
+	// The numbers of rows in x matrix must be equal to the number of columns in y matrix.
+	if len(x[0]) != n {
+		return nil, ErrOperationNotAllowed
+	}
+	z := make([][]float64, m)
+	// Calculate a matrix-matrix product.
+	for i := 0; i < m; i++ {
+		z[i] = make([]float64, p)
+		for j := 0; j < p; j++ {
+			for k := 0; k < n; k++ {
+				z[i][j] += x[i][k] * y[k][j]
+			}
+		}
+	}
+	return z, nil
+}
+
+// MultiplyByVector multiples a given matrix by a given vector.
+func MultiplyByVector(x [][]float64, y []float64) ([]float64, error) {
+	if !IsValid(x) {
+		return nil, ErrInvalidMatrix
+	}
+	m, n := len(x), len(y)
+	if n != len(x[0]) {
+		return nil, ErrOperationNotAllowed
+	}
+	p := make([]float64, m)
+	for i := 0; i < m; i++ {
+		for k := 0; k < n; k++ {
+			p[i] += x[i][k] * y[k]
+		}
+	}
+	return p, nil
+}
+
+// Transpose performs a matrix transposition.
+func Transpose(x [][]float64) ([][]float64, error) {
+	if !IsValid(x) {
+		return nil, ErrInvalidMatrix
+	}
+	n, m := len(x), len(x[0])
+	t := make([][]float64, m)
+	for j := 0; j < m; j++ {
+		t[j] = make([]float64, n)
+		for i := 0; i < n; i++ {
+			t[j][i] = x[i][j]
+		}
+	}
+	return t, nil
+}
+
+// IsValid checks if a 2D slice is a valid matrix.
+func IsValid(x [][]float64) bool {
+	m := len(x[0])
+	for i := 1; i < len(x); i++ {
+		if len(x[i]) != m {
+			return false
+		}
+	}
+	return true
 }
