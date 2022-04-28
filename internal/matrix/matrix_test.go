@@ -1,9 +1,10 @@
 package matrix
 
 import (
-	"math"
 	"reflect"
 	"testing"
+
+	"github.com/erni27/regression/internal/assert"
 )
 
 func TestInverse(t *testing.T) {
@@ -49,7 +50,7 @@ func TestInverse(t *testing.T) {
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			if !matricesEqual(got, tt.want, 6) {
+			if !assert.Are2DFloatSlicesEqual(got, tt.want, 6) {
 				t.Fatalf("got %v, want %v", got, tt.want)
 			}
 		})
@@ -90,7 +91,7 @@ func TestMultiply(t *testing.T) {
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			if !matricesExcatlyEqual(got, tt.want) {
+			if !assert.Are2DFloatSlicesEqual(got, tt.want, -1) {
 				t.Fatalf("got %v, want %v", got, tt.want)
 			}
 		})
@@ -139,7 +140,7 @@ func TestTranspose(t *testing.T) {
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			if !matricesExcatlyEqual(got, tt.want) {
+			if !assert.Are2DFloatSlicesEqual(got, tt.want, -1) {
 				t.Fatalf("got %v, want %v", got, tt.want)
 			}
 		})
@@ -174,43 +175,4 @@ func TestMultiplyByVector(t *testing.T) {
 			}
 		})
 	}
-}
-
-func matricesExcatlyEqual(x [][]float64, y [][]float64) bool {
-	if len(x) != len(y) {
-		return false
-	}
-	for i := 0; i < len(x); i++ {
-		if len(x[i]) != len(y[i]) {
-			return false
-		}
-		for j := 0; j < len(x[i]); j++ {
-			if x[i][j] != y[i][j] {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func matricesEqual(x [][]float64, y [][]float64, p uint) bool {
-	if len(x) != len(y) {
-		return false
-	}
-	for i := 0; i < len(x); i++ {
-		if len(x[i]) != len(y[i]) {
-			return false
-		}
-		for j := 0; j < len(x[i]); j++ {
-			if round(x[i][j], p) != round(y[i][j], p) {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func round(v float64, p uint) float64 {
-	r := math.Pow(10, float64(p))
-	return math.Round(v*r) / r
 }

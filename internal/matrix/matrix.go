@@ -10,7 +10,14 @@ var (
 
 // Inverse performs matrix inversion.
 func Inverse(m [][]float64) ([][]float64, error) {
+	if !IsValid(m) {
+		return nil, ErrInvalidMatrix
+	}
 	n := len(m)
+	if n != len(m[0]) {
+		return nil, ErrNonInvertibleMatrix
+	}
+
 	a := make([][]float64, n)
 	copy(a, m)
 

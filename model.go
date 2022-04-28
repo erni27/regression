@@ -59,6 +59,7 @@ func (m Model) IsTrained() bool {
 // calcHypho calculates the hyphothesis function.
 //
 // The hyphothesis equals h(x)=OX, where O stands for a coefficients vector and X is a feature vector.
+// It includes dummy feature during the calculation.
 func calcHypho(x []float64, coeffs []float64) (float64, error) {
 	n := len(x)
 	if n != len(coeffs)-1 {
@@ -69,4 +70,12 @@ func calcHypho(x []float64, coeffs []float64) (float64, error) {
 		y += x[i] * coeff
 	}
 	return coeffs[0] + y, nil
+}
+
+func calcMean(y []float64) float64 {
+	var s float64
+	for _, v := range y {
+		s += v
+	}
+	return s / float64(len(y))
 }
