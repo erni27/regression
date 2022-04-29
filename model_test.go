@@ -19,7 +19,7 @@ func TestPredict(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Model{
+			m := Model[float64]{
 				coeffs: tt.coeffs,
 			}
 			got, err := m.Predict(tt.arg)
@@ -47,7 +47,7 @@ func TestPredictInvalidFeatureVector(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Model{
+			m := Model[float64]{
 				coeffs: tt.coeffs,
 			}
 			_, err := m.Predict(tt.arg)
@@ -70,7 +70,7 @@ func TestCoefficients(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Model{
+			m := Model[float64]{
 				coeffs: tt.coeffs,
 			}
 			got, err := m.Coefficients()
@@ -97,7 +97,7 @@ func TestR2(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Model{
+			m := Model[float64]{
 				coeffs: coeffs,
 				r2:     tt.r2,
 			}
@@ -113,7 +113,7 @@ func TestR2(t *testing.T) {
 }
 
 func TestNotTrainedModel(t *testing.T) {
-	m := Model{}
+	m := Model[float64]{}
 	t.Run("Predict()", func(t *testing.T) {
 		_, err := m.Predict([]float64{1, 2, 3})
 		if err != ErrNotTrainedModel {

@@ -1,6 +1,10 @@
 package matrix
 
-import "errors"
+import (
+	"errors"
+
+	"golang.org/x/exp/constraints"
+)
 
 var (
 	ErrNonInvertibleMatrix = errors.New("matrix is not invertible")
@@ -9,7 +13,7 @@ var (
 )
 
 // Inverse performs matrix inversion.
-func Inverse(m [][]float64) ([][]float64, error) {
+func Inverse[float constraints.Float](m [][]float) ([][]float, error) {
 	if !IsValid(m) {
 		return nil, ErrInvalidMatrix
 	}
@@ -18,13 +22,13 @@ func Inverse(m [][]float64) ([][]float64, error) {
 		return nil, ErrNonInvertibleMatrix
 	}
 
-	a := make([][]float64, n)
+	a := make([][]float, n)
 	copy(a, m)
 
 	// p is a permuation matrix.
-	p := make([][]float64, n)
+	p := make([][]float, n)
 	for i := 0; i < n; i++ {
-		p[i] = make([]float64, n)
+		p[i] = make([]float, n)
 		p[i][i] = 1
 	}
 
@@ -49,15 +53,15 @@ func Inverse(m [][]float64) ([][]float64, error) {
 		}
 	}
 
-	r := make([][]float64, n)
+	r := make([][]float, n)
 	for i := 0; i < n; i++ {
-		r[i] = make([]float64, n)
+		r[i] = make([]float, n)
 	}
 
 	// b is a column vector of the permuted identity matrix.
-	b := make([]float64, n)
+	b := make([]float, n)
 	// x is a column vector of the inversed matrix.
-	x := make([]float64, n)
+	x := make([]float, n)
 	// Solving n sets of the equation ax=b.
 	for i := 0; i < n; i++ {
 		// Assign the column vector.
@@ -71,7 +75,7 @@ func Inverse(m [][]float64) ([][]float64, error) {
 		// Forward substition.
 		x[0] = b[0]
 		for k := 1; k < n; k++ {
-			var s float64
+			var s float
 			for j := 0; j < k; j++ {
 				s += a[k][j] * x[j]
 			}
@@ -81,7 +85,7 @@ func Inverse(m [][]float64) ([][]float64, error) {
 		// Back substition.
 		x[n-1] /= a[n-1][n-1]
 		for k := n - 2; k >= 0; k-- {
-			var s float64
+			var s float
 			for j := k + 1; j < n; j++ {
 				s += a[k][j] * x[j]
 			}
@@ -96,7 +100,7 @@ func Inverse(m [][]float64) ([][]float64, error) {
 }
 
 // Multiply produces matrix product z=xy.
-func Multiply(x [][]float64, y [][]float64) ([][]float64, error) {
+func Multiply[float constraints.Float](x [][]float, y [][]float) ([][]float, error) {
 	if !IsValid(x) || !IsValid(y) {
 		return nil, ErrInvalidMatrix
 	}
@@ -105,10 +109,10 @@ func Multiply(x [][]float64, y [][]float64) ([][]float64, error) {
 	if len(x[0]) != n {
 		return nil, ErrOperationNotAllowed
 	}
-	z := make([][]float64, m)
+	z := make([][]float, m)
 	// Calculate a matrix-matrix product.
 	for i := 0; i < m; i++ {
-		z[i] = make([]float64, p)
+		z[i] = make([]float, p)
 		for j := 0; j < p; j++ {
 			for k := 0; k < n; k++ {
 				z[i][j] += x[i][k] * y[k][j]
@@ -119,7 +123,7 @@ func Multiply(x [][]float64, y [][]float64) ([][]float64, error) {
 }
 
 // MultiplyByVector multiples a given matrix by a given vector.
-func MultiplyByVector(x [][]float64, y []float64) ([]float64, error) {
+func MultiplyByVector[float constraints.Float](x [][]float, y []float) ([]float, error) {
 	if !IsValid(x) {
 		return nil, ErrInvalidMatrix
 	}
@@ -127,7 +131,7 @@ func MultiplyByVector(x [][]float64, y []float64) ([]float64, error) {
 	if n != len(x[0]) {
 		return nil, ErrOperationNotAllowed
 	}
-	p := make([]float64, m)
+	p := make([]float, m)
 	for i := 0; i < m; i++ {
 		for k := 0; k < n; k++ {
 			p[i] += x[i][k] * y[k]
@@ -137,14 +141,14 @@ func MultiplyByVector(x [][]float64, y []float64) ([]float64, error) {
 }
 
 // Transpose performs a matrix transposition.
-func Transpose(x [][]float64) ([][]float64, error) {
+func Transpose[float constraints.Float](x [][]float) ([][]float, error) {
 	if !IsValid(x) {
 		return nil, ErrInvalidMatrix
 	}
 	n, m := len(x), len(x[0])
-	t := make([][]float64, m)
+	t := make([][]float, m)
 	for j := 0; j < m; j++ {
-		t[j] = make([]float64, n)
+		t[j] = make([]float, n)
 		for i := 0; i < n; i++ {
 			t[j][i] = x[i][j]
 		}
@@ -153,7 +157,7 @@ func Transpose(x [][]float64) ([][]float64, error) {
 }
 
 // IsValid checks if a 2D slice is a valid matrix.
-func IsValid(x [][]float64) bool {
+func IsValid[T any](x [][]T) bool {
 	m := len(x[0])
 	for i := 1; i < len(x); i++ {
 		if len(x[i]) != m {
