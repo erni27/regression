@@ -2,8 +2,7 @@ package regression
 
 import (
 	"errors"
-
-	"golang.org/x/exp/constraints"
+	"math"
 )
 
 var (
@@ -11,32 +10,32 @@ var (
 )
 
 // TrainingExample represents a single (features, target) example.
-type TrainingExample[float constraints.Float] struct {
-	Features []float
-	Target   float
+type TrainingExample struct {
+	Features []float64
+	Target   float64
 }
 
 // TrainingSet represents set of traning examples.
-type TrainingSet[float constraints.Float] []TrainingExample[float]
+type TrainingSet []TrainingExample
 
 // addDummyFeatures puts dummy feature (equals 1) for each training example being a part of the training set.
 //
 // If addDummyFeatures finds inconsistency in the training set, it also returns an error.
-func (ts *TrainingSet[float]) addDummyFeatures() error {
+func (ts *TrainingSet) addDummyFeatures() error {
 	// n represents the number of features
 	n := len((*ts)[0].Features)
 	for i := 0; i < len(*ts); i++ {
 		if n != len((*ts)[i].Features) {
 			return ErrInvalidTrainingSet
 		}
-		(*ts)[i].Features = append([]float{1}, (*ts)[i].Features...)
+		(*ts)[i].Features = append([]float64{1}, (*ts)[i].Features...)
 	}
 	return nil
 }
 
 // getTargetVector returns the target vector from the training set.
-func (ts *TrainingSet[float]) getTargetVector() []float {
-	y := make([]float, len(*ts))
+func (ts *TrainingSet) getTargetVector() []float64 {
+	y := make([]float64, len(*ts))
 	for i, te := range *ts {
 		y[i] = te.Target
 	}
@@ -44,8 +43,8 @@ func (ts *TrainingSet[float]) getTargetVector() []float {
 }
 
 // getDesignMatrix returns the design matrix from the training set.
-func (ts *TrainingSet[float]) getDesignMatrix() [][]float {
-	d := make([][]float, len(*ts))
+func (ts *TrainingSet) getDesignMatrix() [][]float64 {
+	d := make([][]float64, len(*ts))
 	for i, te := range *ts {
 		d[i] = te.Features
 	}
@@ -53,8 +52,8 @@ func (ts *TrainingSet[float]) getDesignMatrix() [][]float {
 }
 
 // calcR2 calculates the coefficient of determination (R squared).
-func calcR2[float constraints.Float](ts TrainingSet[float], coeffs []float) (float, error) {
-	var ssr, sst float
+func calcR2(ts TrainingSet, coeffs []float64) (float64, error) {
+	var ssr, sst float64
 	m := calcMean(ts.getTargetVector())
 	for _, te := range ts {
 		// calcHypho includes dummy feature by itself.
@@ -62,8 +61,8 @@ func calcR2[float constraints.Float](ts TrainingSet[float], coeffs []float) (flo
 		if err != nil {
 			return 0, err
 		}
-		ssr += (te.Target - v) * (te.Target - v)
-		sst += (te.Target - m) * (te.Target - m)
+		ssr += math.Pow(te.Target-v, 2)
+		sst += math.Pow(te.Target-m, 2)
 	}
 	return 1 - ssr/sst, nil
 }

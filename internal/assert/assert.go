@@ -1,24 +1,20 @@
 package assert
 
-import (
-	"math"
+import "math"
 
-	"golang.org/x/exp/constraints"
-)
-
-func AreFloatEqual[float constraints.Float](x, y float, precision uint) bool {
+func AreFloatEqual(x, y float64, precision uint) bool {
 	return round(x, precision) == round(y, precision)
 }
 
-func AreFloatSlicesEqual[float constraints.Float](x, y []float, precision int) bool {
+func AreFloatSlicesEqual(x, y []float64, precision int) bool {
 	if len(x) != len(y) {
 		return false
 	}
-	var equal func(float, float) bool
+	var equal func(float64, float64) bool
 	if precision < 0 {
-		equal = func(a, b float) bool { return a == b }
+		equal = func(a, b float64) bool { return a == b }
 	} else {
-		equal = func(a, b float) bool { return AreFloatEqual(a, b, uint(precision)) }
+		equal = func(a, b float64) bool { return AreFloatEqual(a, b, uint(precision)) }
 	}
 	for i := 0; i < len(x); i++ {
 		if !equal(x[i], y[i]) {
@@ -28,7 +24,7 @@ func AreFloatSlicesEqual[float constraints.Float](x, y []float, precision int) b
 	return true
 }
 
-func Are2DFloatSlicesEqual[float constraints.Float](x, y [][]float, precision int) bool {
+func Are2DFloatSlicesEqual(x, y [][]float64, precision int) bool {
 	if len(x) != len(y) {
 		return false
 	}
@@ -40,7 +36,7 @@ func Are2DFloatSlicesEqual[float constraints.Float](x, y [][]float, precision in
 	return true
 }
 
-func round[float constraints.Float](v float, p uint) float {
+func round(v float64, p uint) float64 {
 	r := math.Pow(10, float64(p))
-	return float(math.Round(float64(v)*r) / r)
+	return math.Round(v*r) / r
 }
