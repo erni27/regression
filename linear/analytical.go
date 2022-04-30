@@ -5,21 +5,32 @@ import (
 	"github.com/erni27/regression/internal/matrix"
 )
 
-// Train runs linear regression for given training set. It uses an analytical approach
+func WithNormalEquation() regression.Regression[float64] {
+	var f regressionFunc = Run
+	return f
+}
+
+type regressionFunc func(s regression.TrainingSet[float64]) (regression.Model[float64], error)
+
+func (f regressionFunc) Run(s regression.TrainingSet[float64]) (regression.Model[float64], error) {
+	return f(s)
+}
+
+// Run runs linear regression for given training set. It uses an analytical approach
 // for computing coefficients (normal equation).
-func Train(ts regression.TrainingSet[float64]) (Model, error) {
-	err := addDummyFeatures(&ts)
+func Run(s regression.TrainingSet[float64]) (regression.Model[float64], error) {
+	err := addDummyFeatures(&s)
 	if err != nil {
 		return Model{}, err
 	}
-	x := getDesignMatrix(ts)
-	y := getTargetVector(ts)
+	x := getDesignMatrix(s)
+	y := getTargetVector(s)
 
 	coeffs, err := solveNormalEquation(x, y)
 	if err != nil {
 		return Model{}, err
 	}
-	r2, err := calcR2(ts, coeffs)
+	r2, err := calcR2(s, coeffs)
 	if err != nil {
 		return Model{}, err
 	}
@@ -28,7 +39,7 @@ func Train(ts regression.TrainingSet[float64]) (Model, error) {
 
 // solveNormalEquation solves the normal equation for given design matrix and target vector.
 //
-// The normal equation minimizes the cost function (LMS) by explicity taking its derivatives
+// The normal equation minimizes the cost function for linear regression (LMS) by explicity taking its derivatives
 // with respect to the coefficients and setting them to zero.
 func solveNormalEquation(x [][]float64, y []float64) ([]float64, error) {
 	xt, err := matrix.Transpose(x)

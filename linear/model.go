@@ -37,7 +37,7 @@ func (m Model) Coefficients() ([]float64, error) {
 }
 
 // R2 returns 'R squared'.
-func (m Model) R2() (float64, error) {
+func (m Model) Accuracy() (float64, error) {
 	if !m.IsTrained() {
 		return 0, ErrNotTrainedModel
 	}

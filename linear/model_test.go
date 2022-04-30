@@ -84,7 +84,7 @@ func TestCoefficients(t *testing.T) {
 	}
 }
 
-func TestR2(t *testing.T) {
+func TestAccuracy(t *testing.T) {
 	coeffs := []float64{1, 2}
 	tests := []struct {
 		name string
@@ -101,7 +101,7 @@ func TestR2(t *testing.T) {
 				coeffs: coeffs,
 				r2:     tt.r2,
 			}
-			got, err := m.R2()
+			got, err := m.Accuracy()
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
@@ -127,7 +127,7 @@ func TestNotTrainedModel(t *testing.T) {
 		}
 	})
 	t.Run("R2()", func(t *testing.T) {
-		_, err := m.R2()
+		_, err := m.Accuracy()
 		if err != ErrNotTrainedModel {
 			t.Errorf("Predict(want %v, got %v", ErrNotTrainedModel, err)
 		}
