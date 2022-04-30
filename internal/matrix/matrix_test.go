@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/erni27/regression/internal/assert"
+	"github.com/erni27/regression/internal/regressiontest"
 )
 
 func TestInverse(t *testing.T) {
@@ -50,7 +50,7 @@ func TestInverse(t *testing.T) {
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			if !assert.Are2DFloatSlicesEqual(got, tt.want, 6) {
+			if !regressiontest.Are2DFloatSlicesEqual(got, tt.want, 6) {
 				t.Fatalf("got %v, want %v", got, tt.want)
 			}
 		})
@@ -91,7 +91,7 @@ func TestMultiply(t *testing.T) {
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			if !assert.Are2DFloatSlicesEqual(got, tt.want, -1) {
+			if !regressiontest.Are2DFloatSlicesEqual(got, tt.want, -1) {
 				t.Fatalf("got %v, want %v", got, tt.want)
 			}
 		})
@@ -140,7 +140,7 @@ func TestTranspose(t *testing.T) {
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			if !assert.Are2DFloatSlicesEqual(got, tt.want, -1) {
+			if !regressiontest.Are2DFloatSlicesEqual(got, tt.want, -1) {
 				t.Fatalf("got %v, want %v", got, tt.want)
 			}
 		})

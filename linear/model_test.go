@@ -1,4 +1,4 @@
-package regression
+package linear
 
 import (
 	"reflect"

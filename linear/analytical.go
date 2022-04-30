@@ -1,18 +1,19 @@
-package regression
+package linear
 
 import (
+	"github.com/erni27/regression"
 	"github.com/erni27/regression/internal/matrix"
 )
 
 // Train runs linear regression for given training set. It uses an analytical approach
 // for computing coefficients (normal equation).
-func Train(ts TrainingSet) (Model, error) {
-	err := ts.addDummyFeatures()
+func Train(ts regression.TrainingSet[float64]) (Model, error) {
+	err := addDummyFeatures(&ts)
 	if err != nil {
 		return Model{}, err
 	}
-	x := ts.getDesignMatrix()
-	y := ts.getTargetVector()
+	x := getDesignMatrix(ts)
+	y := getTargetVector(ts)
 
 	coeffs, err := solveNormalEquation(x, y)
 	if err != nil {

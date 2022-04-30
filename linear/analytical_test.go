@@ -1,9 +1,9 @@
-package regression
+package linear
 
 import (
 	"testing"
 
-	"github.com/erni27/regression/internal/assert"
+	"github.com/erni27/regression/internal/regressiontest"
 )
 
 func TestTrain(t *testing.T) {
@@ -29,7 +29,7 @@ func TestTrain(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ts, err := loadTrainingSet(tt.fileName)
+			ts, err := regressiontest.LoadTrainingSet[float64](tt.fileName)
 			if err != nil {
 				t.Fatalf("cannot load training set %v", err)
 			}
@@ -41,14 +41,14 @@ func TestTrain(t *testing.T) {
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			if !assert.AreFloatSlicesEqual(coeffs, tt.want.coeffs, 3) {
+			if !regressiontest.AreFloatSlicesEqual(coeffs, tt.want.coeffs, 3) {
 				t.Errorf("got coefficients %v, want %v", coeffs, tt.want.coeffs)
 			}
 			r2, err := got.R2()
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			if !assert.AreFloatEqual(r2, tt.want.r2, 2) {
+			if !regressiontest.AreFloatEqual(r2, tt.want.r2, 2) {
 				t.Errorf("got r2 %v, want %v", r2, tt.want.r2)
 			}
 		})
