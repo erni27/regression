@@ -1,64 +1,40 @@
 package linear
 
 import (
-	"errors"
 	"fmt"
 	"math"
 
 	"github.com/erni27/regression"
 )
 
-var (
-	ErrInvalidFeatureVector = errors.New("invalid feature vector")
-	ErrNotTrainedModel      = errors.New("not trained model")
-	ErrInvalidTrainingSet   = errors.New("invalid training set")
-)
-
-// A Model is a linear regression model.
-type Model struct {
+// A model is a linear regression model.
+type model struct {
 	coeffs []float64
 	r2     float64
 }
 
 // Predict returns the predicated target value for the given input.
-func (m Model) Predict(x []float64) (float64, error) {
-	if !m.IsTrained() {
-		return 0, ErrNotTrainedModel
-	}
+func (m model) Predict(x []float64) (float64, error) {
 	// Include dummy feature equals 1 at the beginning.
 	return hyphothesis(append([]float64{1}, x...), m.coeffs)
 }
 
 // Coefficients returns the trained linear regression model's coefficients.
-func (m Model) Coefficients() ([]float64, error) {
-	if !m.IsTrained() {
-		return nil, ErrNotTrainedModel
-	}
-	return m.coeffs, nil
+func (m model) Coefficients() []float64 {
+	return m.coeffs
 }
 
-// R2 returns 'R squared'.
-func (m Model) Accuracy() (float64, error) {
-	if !m.IsTrained() {
-		return 0, ErrNotTrainedModel
-	}
-	return m.r2, nil
+// Accuracy returns 'R squared' determinant for trained model.
+func (m model) Accuracy() float64 {
+	return m.r2
 }
 
-func (m Model) String() string {
-	if !m.IsTrained() {
-		return ErrNotTrainedModel.Error()
-	}
+func (m model) String() string {
 	s := fmt.Sprintf("y = %f", m.coeffs[0])
 	for i, coeff := range m.coeffs[1:] {
 		s += fmt.Sprintf(" + x%d*%f", i+1, coeff)
 	}
 	return s
-}
-
-// IsTrained checks if linear regression model is trained.
-func (m Model) IsTrained() bool {
-	return m.coeffs != nil
 }
 
 func calcMean(y []float64) float64 {
@@ -73,7 +49,7 @@ func calcMean(y []float64) float64 {
 func calcR2(s regression.TrainingSet, coeffs []float64) (float64, error) {
 	var ssr, sst float64
 	m := calcMean(s.GetTargetVector())
-	for _, te := range s {
+	for _, te := range s.Examples() {
 		v, err := hyphothesis(te.Features, coeffs)
 		if err != nil {
 			return 0, err

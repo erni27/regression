@@ -6,6 +6,8 @@ import (
 	"github.com/erni27/regression"
 )
 
+// NewBatchStepper returns a new Stepper which uses batch gradient descent algorithm
+// to calculate next steps.
 func NewBatchStepper(h Hyphothesis, x [][]float64, y []float64, lr float64) Stepper {
 	return &batchStepper{stepper{hypho: h, x: x, y: y, lr: lr, coeffs: make([]float64, len(x[0]))}}
 }

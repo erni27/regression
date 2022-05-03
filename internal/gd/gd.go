@@ -21,6 +21,8 @@ type Hyphothesis func(x []float64, coeffs []float64) (float64, error)
 // CostFunc is a function template for cost function used in gradient descent algorithm.
 type CostFunc func(x [][]float64, y []float64, coeffs []float64) (float64, error)
 
+// ConvergeAfter runs gradient descent with iterative convergance.
+// It converges after i iterations.
 func ConvergeAfter(s Stepper, i int) ([]float64, error) {
 	for k := 0; k < i; k++ {
 		err := s.TakeStep()
@@ -31,6 +33,8 @@ func ConvergeAfter(s Stepper, i int) ([]float64, error) {
 	return s.CurrentCoefficients(), nil
 }
 
+// ConvergeAutomatically runs gradient descent with automatic convergance.
+// It converges if cost function decreases by lower value than t threshold.
 func ConvergeAutomatically(s Stepper, c CostFunc, t float64) ([]float64, error) {
 	var coeffs []float64
 	for {

@@ -3,6 +3,8 @@ package linear
 import (
 	"reflect"
 	"testing"
+
+	"github.com/erni27/regression"
 )
 
 func TestPredict(t *testing.T) {
@@ -19,7 +21,7 @@ func TestPredict(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Model{
+			m := model{
 				coeffs: tt.coeffs,
 			}
 			got, err := m.Predict(tt.arg)
@@ -47,12 +49,12 @@ func TestPredictInvalidFeatureVector(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Model{
+			m := model{
 				coeffs: tt.coeffs,
 			}
 			_, err := m.Predict(tt.arg)
-			if err != ErrInvalidFeatureVector {
-				t.Fatalf("want %v, got %v", ErrInvalidFeatureVector, err)
+			if err != regression.ErrInvalidFeatureVector {
+				t.Fatalf("want %v, got %v", regression.ErrInvalidFeatureVector, err)
 			}
 		})
 	}
@@ -70,13 +72,10 @@ func TestCoefficients(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Model{
+			m := model{
 				coeffs: tt.coeffs,
 			}
-			got, err := m.Coefficients()
-			if err != nil {
-				t.Fatalf("want nil, got error %v", err)
-			}
+			got := m.Coefficients()
 			if !reflect.DeepEqual(got, m.coeffs) {
 				t.Fatalf("want %v, got %v", got, tt.coeffs)
 			}
@@ -97,45 +96,14 @@ func TestAccuracy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := Model{
+			m := model{
 				coeffs: coeffs,
 				r2:     tt.r2,
 			}
-			got, err := m.Accuracy()
-			if err != nil {
-				t.Fatalf("want nil, got error %v", err)
-			}
+			got := m.Accuracy()
 			if got != m.r2 {
 				t.Fatalf("want %f, got %f", got, m.r2)
 			}
 		})
 	}
-}
-
-func TestNotTrainedModel(t *testing.T) {
-	m := Model{}
-	t.Run("Predict()", func(t *testing.T) {
-		_, err := m.Predict([]float64{1, 2, 3})
-		if err != ErrNotTrainedModel {
-			t.Fatalf("Predict(want %v, got %v", ErrNotTrainedModel, err)
-		}
-	})
-	t.Run("Coefficients()", func(t *testing.T) {
-		_, err := m.Coefficients()
-		if err != ErrNotTrainedModel {
-			t.Errorf("Predict(want %v, got %v", ErrNotTrainedModel, err)
-		}
-	})
-	t.Run("R2()", func(t *testing.T) {
-		_, err := m.Accuracy()
-		if err != ErrNotTrainedModel {
-			t.Errorf("Predict(want %v, got %v", ErrNotTrainedModel, err)
-		}
-	})
-	t.Run("String()", func(t *testing.T) {
-		got := m.String()
-		if got != ErrNotTrainedModel.Error() {
-			t.Errorf("Predict(want %s, got %s", ErrNotTrainedModel.Error(), got)
-		}
-	})
 }

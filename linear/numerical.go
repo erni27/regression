@@ -19,11 +19,7 @@ func WithGradientDescent(o opt.Options) regression.Regression[float64] {
 // numerical runs linear regression for given training set. It uses an numerical approach
 // for computing coefficients (gradient descent).
 func numerical(o opt.Options, s regression.TrainingSet) (regression.Model[float64], error) {
-	err := addDummyFeatures(&s)
-	if err != nil {
-		return nil, err
-	}
-
+	s.AddDummyFeatures()
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
 
@@ -39,6 +35,7 @@ func numerical(o opt.Options, s regression.TrainingSet) (regression.Model[float6
 	}
 
 	var coeffs []float64
+	var err error
 	switch o.ConverganceType() {
 	case opt.Iterative:
 		coeffs, err = gd.ConvergeAfter(gds, int(o.ConverganceIndicator()))
@@ -54,5 +51,5 @@ func numerical(o opt.Options, s regression.TrainingSet) (regression.Model[float6
 	if err != nil {
 		return nil, err
 	}
-	return Model{coeffs: coeffs, r2: r2}, nil
+	return model{coeffs: coeffs, r2: r2}, nil
 }

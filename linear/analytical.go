@@ -15,22 +15,19 @@ func WithNormalEquation() regression.Regression[float64] {
 // analytical runs linear regression for given training set. It uses an analytical approach
 // for computing coefficients (normal equation).
 func analytical(s regression.TrainingSet) (regression.Model[float64], error) {
-	err := addDummyFeatures(&s)
-	if err != nil {
-		return Model{}, err
-	}
+	s.AddDummyFeatures()
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
 
 	coeffs, err := solveNormalEquation(x, y)
 	if err != nil {
-		return Model{}, err
+		return nil, err
 	}
 	r2, err := calcR2(s, coeffs)
 	if err != nil {
-		return Model{}, err
+		return nil, err
 	}
-	return Model{coeffs: coeffs, r2: r2}, nil
+	return model{coeffs: coeffs, r2: r2}, nil
 }
 
 // solveNormalEquation solves the normal equation for given design matrix and target vector.

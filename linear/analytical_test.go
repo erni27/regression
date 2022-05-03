@@ -30,25 +30,19 @@ func TestRunAnalytical(t *testing.T) {
 	r := WithNormalEquation()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ts, err := regressiontest.LoadTrainingSet(tt.fileName)
+			s, err := regressiontest.LoadTrainingSet(tt.fileName)
 			if err != nil {
 				t.Fatalf("cannot load training set %v", err)
 			}
-			got, err := r.Run(ts)
+			got, err := r.Run(*s)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			coeffs, err := got.Coefficients()
-			if err != nil {
-				t.Fatalf("want nil, got error %v", err)
-			}
+			coeffs := got.Coefficients()
 			if !regressiontest.AreFloatSlicesEqual(coeffs, tt.want.coeffs, 3) {
 				t.Errorf("got coefficients %v, want %v", coeffs, tt.want.coeffs)
 			}
-			r2, err := got.Accuracy()
-			if err != nil {
-				t.Fatalf("want nil, got error %v", err)
-			}
+			r2 := got.Accuracy()
 			if !regressiontest.AreFloatEqual(r2, tt.want.r2, 3) {
 				t.Errorf("got r2 %v, want %v", r2, tt.want.r2)
 			}

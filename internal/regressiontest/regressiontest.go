@@ -48,7 +48,7 @@ func Round(v float64, p uint) float64 {
 	return math.Round(v*r) / r
 }
 
-func LoadTrainingSet(fn string) (regression.TrainingSet, error) {
+func LoadTrainingSet(fn string) (*regression.TrainingSet, error) {
 	f, err := os.Open("../testdata/" + fn)
 	if err != nil {
 		return nil, err
@@ -58,22 +58,26 @@ func LoadTrainingSet(fn string) (regression.TrainingSet, error) {
 	if err != nil {
 		return nil, err
 	}
-	var ts regression.TrainingSet = make([]regression.TrainingExample, len(data))
+	exs := make([]regression.TrainingExample, len(data))
 	for j, l := range data {
-		te := regression.TrainingExample{Features: make([]float64, len(l)-1)}
+		e := regression.TrainingExample{Features: make([]float64, len(l)-1)}
 		for i, f := range l[:len(l)-1] {
 			f, err := strconv.ParseFloat(f, 64)
 			if err != nil {
 				return nil, err
 			}
-			te.Features[i] = f
+			e.Features[i] = f
 		}
 		f, err := strconv.ParseFloat(l[len(l)-1], 64)
 		if err != nil {
 			return nil, err
 		}
-		te.Target = f
-		ts[j] = te
+		e.Target = f
+		exs[j] = e
 	}
-	return ts, nil
+	s, err := regression.NewTrainingSet(exs)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
 }
