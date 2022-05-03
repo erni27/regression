@@ -5,26 +5,22 @@ import (
 	"github.com/erni27/regression/internal/matrix"
 )
 
+// WithNormalEquation initializes linear regression with analytical approach.
+// It directly finds the value of coefficients by solving normal equation.
 func WithNormalEquation() regression.Regression[float64] {
-	var f regressionFunc = Run
+	var f regressionFunc = analytical
 	return f
 }
 
-type regressionFunc func(s regression.TrainingSet[float64]) (regression.Model[float64], error)
-
-func (f regressionFunc) Run(s regression.TrainingSet[float64]) (regression.Model[float64], error) {
-	return f(s)
-}
-
-// Run runs linear regression for given training set. It uses an analytical approach
+// analytical runs linear regression for given training set. It uses an analytical approach
 // for computing coefficients (normal equation).
-func Run(s regression.TrainingSet[float64]) (regression.Model[float64], error) {
+func analytical(s regression.TrainingSet) (regression.Model[float64], error) {
 	err := addDummyFeatures(&s)
 	if err != nil {
 		return Model{}, err
 	}
-	x := getDesignMatrix(s)
-	y := getTargetVector(s)
+	x := s.GetDesignMatrix()
+	y := s.GetTargetVector()
 
 	coeffs, err := solveNormalEquation(x, y)
 	if err != nil {
