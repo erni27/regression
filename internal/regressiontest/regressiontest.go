@@ -49,7 +49,7 @@ func Round(v float64, p uint) float64 {
 }
 
 func LoadTrainingSet(fn string) (*regression.TrainingSet, error) {
-	f, err := os.Open("../testdata/" + fn)
+	f, err := os.Open("./testdata/" + fn)
 	if err != nil {
 		return nil, err
 	}

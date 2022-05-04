@@ -1,3 +1,5 @@
+// Package regression defines interfaces, structures and errors shared by other packages
+// that implement a concrete regression algorithm.
 package regression
 
 import "errors"
@@ -5,11 +7,15 @@ import "errors"
 var (
 	// ErrCannotConverge is returned if gradient descent cannot converge.
 	// It usually means that the learning rate is too large.
-	ErrCannotConverge                    = errors.New("cannot converge")
+	ErrCannotConverge = errors.New("cannot converge")
+	// ErrUnsupportedGradientDescentVariant is returned if unsupported gradient descent variant was chosen.
 	ErrUnsupportedGradientDescentVariant = errors.New("unsupported gradient descent variant")
-	ErrUnsupportedConverganceType        = errors.New("unsupported convergance type")
-	ErrInvalidTrainingSet                = errors.New("invalid training set")
-	ErrInvalidFeatureVector              = errors.New("invalid feature vector")
+	// ErrUnsupportedConverganceType is returned if unsupported convergance type was chosen.
+	ErrUnsupportedConverganceType = errors.New("unsupported convergance type")
+	// ErrInvalidTrainingSet is returned if features vectors included in the set are not consistent.
+	ErrInvalidTrainingSet = errors.New("invalid training set")
+	// ErrInvalidFeatureVector is returned if feature vector is invalid.
+	ErrInvalidFeatureVector = errors.New("invalid feature vector")
 )
 
 // TargetType is a constraint that permits two types (float64 or integer) for target value.
@@ -19,13 +25,17 @@ type TargetType interface {
 	~float64 | ~int
 }
 
+// A Model is a trained regression model.
 type Model[T TargetType] interface {
 	Predict(x []float64) (T, error)
 	Coefficients() []float64
 	Accuracy() float64
 }
 
+// A Regression is a regression runner. It provides an abstraction for model training.
 type Regression[T TargetType] interface {
+	// Run runs regression against input training set.
+	// It returns trained Model if succeded, otherwise returns an error.
 	Run(s TrainingSet) (Model[T], error)
 }
 
@@ -35,10 +45,10 @@ type TrainingExample struct {
 	Target   float64
 }
 
-// NewTrainingSet creates a new training set if examples are valid in a current context.
-// It doesn't check for correctness of values. If examples are invalid, returns an error.
+// NewTrainingSet creates a new training set if examples are consistent.
+// It doesn't check for correctness of values. If examples are not consistent, returns an error.
 func NewTrainingSet(exs []TrainingExample) (*TrainingSet, error) {
-	if !areExamplesValid(exs) {
+	if !areExamplesConsistent(exs) {
 		return nil, ErrInvalidTrainingSet
 	}
 	return &TrainingSet{examples: exs}, nil
@@ -46,11 +56,10 @@ func NewTrainingSet(exs []TrainingExample) (*TrainingSet, error) {
 
 // TrainingSet represents set of traning examples.
 type TrainingSet struct {
-	examples []TrainingExample
-	x        [][]float64
-	y        []float64
-	// isDummyAdded is a flag indicating if a dummy feature was added to each training example.
-	isDummyAdded bool
+	examples     []TrainingExample
+	x            [][]float64
+	y            []float64
+	isDummyAdded bool // Indicates if a dummy feature was added to each training example.
 }
 
 // Examples returns all training examples from training set.
@@ -95,7 +104,7 @@ func (s *TrainingSet) AddDummyFeatures() {
 	s.isDummyAdded = true
 }
 
-func areExamplesValid(exs []TrainingExample) bool {
+func areExamplesConsistent(exs []TrainingExample) bool {
 	if exs == nil || len(exs) == 0 {
 		return false
 	}
