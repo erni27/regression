@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/erni27/regression/internal/regressiontest"
-	"github.com/erni27/regression/opt"
+	"github.com/erni27/regression/options"
 )
 
 func TestRunNumerical(t *testing.T) {
@@ -15,19 +15,19 @@ func TestRunNumerical(t *testing.T) {
 	tests := []struct {
 		name     string
 		fileName string
-		options  opt.Options
+		options  options.Options
 		want     expected
 	}{
 		{
 			name:     "batch_iterative_n=1_m=97_alpha=0.01_i=1500",
 			fileName: "n=1_m=97.txt",
-			options:  opt.WithIterativeConvergance(0.01, opt.Batch, 1500),
+			options:  options.WithIterativeConvergance(0.01, options.Batch, 1500),
 			want:     expected{r2: 0.702, coeffs: []float64{-3.630, 1.166}},
 		},
 		{
 			name:     "stochastic_iterative_n=1_m=97_alpha=0.01_i=150000",
 			fileName: "n=1_m=97.txt",
-			options:  opt.WithIterativeConvergance(0.01, opt.Stochastic, 150000),
+			options:  options.WithIterativeConvergance(0.01, options.Stochastic, 150000),
 			want:     expected{r2: 0.686, coeffs: []float64{-3.653, 1.092}},
 		},
 	}
