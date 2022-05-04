@@ -1,5 +1,5 @@
-// Package opt defines training options for specific regression variants.
-package opt
+// Package options defines training options for specific regression variants.
+package options
 
 // ConverganceType identifies a convergance type.
 type ConverganceType int
