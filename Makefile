@@ -13,7 +13,7 @@ fix: ## Fix lint violations
 .PHONY: test
 test: ## Run all tests
 	mkdir -p bin
-	go test -race -covermode=atomic -coverprofile=bin/coverage.out ./...
+	go test `go list ./... | grep --invert-match regressiontest` -race -covermode=atomic -coverprofile=bin/coverage.out ./...
 
 .PHONY: coverage
 coverage: test ## Run all tests and open covergae as a html

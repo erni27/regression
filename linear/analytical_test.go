@@ -1,12 +1,12 @@
-package regression
+package linear
 
 import (
 	"testing"
 
-	"github.com/erni27/regression/internal/assert"
+	"github.com/erni27/regression/internal/regressiontest"
 )
 
-func TestTrain(t *testing.T) {
+func TestRunAnalytical(t *testing.T) {
 	type expected struct {
 		r2     float64
 		coeffs []float64
@@ -17,7 +17,7 @@ func TestTrain(t *testing.T) {
 		want     expected
 	}{
 		{
-			name:     "n=1,m=97",
+			name:     "n=1_m=97",
 			fileName: "n=1_m=97.txt",
 			want:     expected{r2: 0.702, coeffs: []float64{-3.896, 1.193}},
 		},
@@ -27,28 +27,23 @@ func TestTrain(t *testing.T) {
 			want:     expected{r2: 0.733, coeffs: []float64{89597.91, 139.211, -8738.019}},
 		},
 	}
+	r := WithNormalEquation()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ts, err := loadTrainingSet[float64](tt.fileName)
+			s, err := regressiontest.LoadTrainingSet(tt.fileName)
 			if err != nil {
 				t.Fatalf("cannot load training set %v", err)
 			}
-			got, err := Train(ts)
+			got, err := r.Run(*s)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
-			coeffs, err := got.Coefficients()
-			if err != nil {
-				t.Fatalf("want nil, got error %v", err)
-			}
-			if !assert.AreFloatSlicesEqual(coeffs, tt.want.coeffs, 3) {
+			coeffs := got.Coefficients()
+			if !regressiontest.AreFloatSlicesEqual(coeffs, tt.want.coeffs, 3) {
 				t.Errorf("got coefficients %v, want %v", coeffs, tt.want.coeffs)
 			}
-			r2, err := got.R2()
-			if err != nil {
-				t.Fatalf("want nil, got error %v", err)
-			}
-			if !assert.AreFloatEqual(r2, tt.want.r2, 2) {
+			r2 := got.Accuracy()
+			if !regressiontest.AreFloatEqual(r2, tt.want.r2, 3) {
 				t.Errorf("got r2 %v, want %v", r2, tt.want.r2)
 			}
 		})
