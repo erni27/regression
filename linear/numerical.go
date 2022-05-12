@@ -47,9 +47,5 @@ func numerical(o options.Options, s regression.TrainingSet) (regression.Model[fl
 	if err != nil {
 		return nil, err
 	}
-	r2, err := calcR2(s, coeffs)
-	if err != nil {
-		return nil, err
-	}
-	return model{coeffs: coeffs, r2: r2}, nil
+	return model{coeffs: coeffs, r2: -1}, nil
 }

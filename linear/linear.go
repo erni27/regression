@@ -15,7 +15,7 @@ func (f regressionFunc) Run(s regression.TrainingSet) (regression.Model[float64]
 	return f(s)
 }
 
-// hyphothesis calculates the hyphothesis function for linear regression.
+// hyphothesis calculates the hyphothesis function for the linear regression model.
 //
 // The hyphothesis equals h(x)=OX, where O stands for a coefficients vector and X is a feature vector.
 func hyphothesis(x []float64, coeffs []float64) (float64, error) {
@@ -23,8 +23,8 @@ func hyphothesis(x []float64, coeffs []float64) (float64, error) {
 		return 0, regression.ErrInvalidFeatureVector
 	}
 	var y float64
-	for i, c := range coeffs {
-		y += x[i] * c
+	for i := 0; i < len(coeffs); i++ {
+		y += x[i] * coeffs[i]
 	}
 	return y, nil
 }
