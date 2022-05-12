@@ -23,7 +23,11 @@ func analytical(s regression.TrainingSet) (regression.Model[float64], error) {
 	if err != nil {
 		return nil, err
 	}
-	return model{coeffs: coeffs, r2: -1}, nil
+	r2, err := calcR2(x, y, coeffs)
+	if err != nil {
+		return nil, err
+	}
+	return model{coeffs: coeffs, r2: r2}, nil
 }
 
 // solveNormalEquation solves the normal equation for given design matrix and target vector.

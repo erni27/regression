@@ -105,7 +105,7 @@ func (s *TrainingSet) AddDummyFeatures() {
 }
 
 func areExamplesConsistent(exs []TrainingExample) bool {
-	if exs == nil || len(exs) == 0 {
+	if len(exs) == 0 {
 		return false
 	}
 	// n represents number of features.
