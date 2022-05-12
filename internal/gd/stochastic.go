@@ -1,16 +1,16 @@
 package gd
 
-// NewStochasticStepper returns a new Stepper which uses stochastic gradient descent algorithm
+// newStochasticStepper returns a new Stepper which uses stochastic gradient descent algorithm
 // to calculate next steps.
-func NewStochasticStepper(h Hyphothesis, x [][]float64, y []float64, lr float64) Stepper {
-	return &stochasticStepper{stepper{hypho: h, x: x, y: y, lr: lr, coeffs: make([]float64, len(x[0]))}, 0}
+func newStochasticStepper(h Hyphothesis, x [][]float64, y []float64, lr float64) stepper {
+	return &stochasticStepper{baseStepper{hypho: h, x: x, y: y, lr: lr, coeffs: make([]float64, len(x[0]))}, 0}
 }
 
 // stochasticStepper takes steps (calculates next values of the coefficients)
 // according to the stochastic gradient descent variant.
 // It implements Stepper interface.
 type stochasticStepper struct {
-	stepper
+	baseStepper
 	i int
 }
 

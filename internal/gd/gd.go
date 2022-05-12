@@ -1,10 +1,42 @@
 // Package gd provides gradient descent implementation.
 package gd
 
-import "github.com/erni27/regression"
+import (
+	"github.com/erni27/regression"
+	"github.com/erni27/regression/options"
+)
 
-// A Stepper wraps logic around taking steps (calculating new coefficients' values).
-type Stepper interface {
+// Hyphothesis is a function template for a hyphothesis function used in gradient descent algorithm.
+type Hyphothesis func(x []float64, coeffs []float64) (float64, error)
+
+// CostFunc is a function template for cost function used in gradient descent algorithm.
+type CostFunc func(x [][]float64, y []float64, coeffs []float64) (float64, error)
+
+// Run runs gradient descent algorithm.
+func Run(o options.Options, h Hyphothesis, c CostFunc, x [][]float64, y []float64) ([]float64, error) {
+	// Init stepper.
+	var gds stepper
+	switch o.GradientDescentVariant() {
+	case options.Batch:
+		gds = newBatchStepper(h, x, y, o.LearningRate())
+	case options.Stochastic:
+		gds = newStochasticStepper(h, x, y, o.LearningRate())
+	default:
+		return nil, regression.ErrUnsupportedGradientDescentVariant
+	}
+
+	switch o.ConverganceType() {
+	case options.Iterative:
+		return convergeAfter(gds, int(o.ConverganceIndicator()))
+	case options.Automatic:
+		return convergeAutomatically(gds, c, o.ConverganceIndicator())
+	default:
+		return nil, regression.ErrUnsupportedConverganceType
+	}
+}
+
+// A stepper wraps logic around taking steps (calculating new coefficients' values).
+type stepper interface {
 	// TakeStep takes single step towards cost function minimum.
 	TakeStep() error
 	// CurrentCoefficients returns current coefficients calculated by stepper.
@@ -15,15 +47,9 @@ type Stepper interface {
 	Y() []float64
 }
 
-// Hyphothesis is a function template for a hyphothesis function used in gradient descent algorithm.
-type Hyphothesis func(x []float64, coeffs []float64) (float64, error)
-
-// CostFunc is a function template for cost function used in gradient descent algorithm.
-type CostFunc func(x [][]float64, y []float64, coeffs []float64) (float64, error)
-
-// ConvergeAfter runs gradient descent with iterative convergance.
+// convergeAfter runs gradient descent with iterative convergance.
 // It converges after i iterations.
-func ConvergeAfter(s Stepper, i int) ([]float64, error) {
+func convergeAfter(s stepper, i int) ([]float64, error) {
 	for k := 0; k < i; k++ {
 		err := s.TakeStep()
 		if err != nil {
@@ -33,9 +59,9 @@ func ConvergeAfter(s Stepper, i int) ([]float64, error) {
 	return s.CurrentCoefficients(), nil
 }
 
-// ConvergeAutomatically runs gradient descent with automatic convergance.
+// convergeAutomatically runs gradient descent with automatic convergance.
 // It converges if cost function decreases by lower value than t threshold.
-func ConvergeAutomatically(s Stepper, c CostFunc, t float64) ([]float64, error) {
+func convergeAutomatically(s stepper, c CostFunc, t float64) ([]float64, error) {
 	var coeffs []float64
 	for {
 		coeffs = s.CurrentCoefficients()
@@ -61,8 +87,8 @@ func ConvergeAutomatically(s Stepper, c CostFunc, t float64) ([]float64, error) 
 	}
 }
 
-// stepper is a prototype for concrete steppers. It should be embedded.
-type stepper struct {
+// baseStepper is a prototype for concrete steppers. It should be embedded.
+type baseStepper struct {
 	hypho  Hyphothesis
 	x      [][]float64
 	y      []float64
@@ -70,14 +96,14 @@ type stepper struct {
 	coeffs []float64
 }
 
-func (s stepper) CurrentCoefficients() []float64 {
+func (s baseStepper) CurrentCoefficients() []float64 {
 	return s.coeffs
 }
 
-func (s stepper) X() [][]float64 {
+func (s baseStepper) X() [][]float64 {
 	return s.x
 }
 
-func (s stepper) Y() []float64 {
+func (s baseStepper) Y() []float64 {
 	return s.y
 }

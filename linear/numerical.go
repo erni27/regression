@@ -23,30 +23,11 @@ func numerical(o options.Options, s regression.TrainingSet) (regression.Model[fl
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
 
-	// Init stepper.
-	var gds gd.Stepper
-	switch o.GradientDescentVariant() {
-	case options.Batch:
-		gds = gd.NewBatchStepper(hyphothesis, x, y, o.LearningRate())
-	case options.Stochastic:
-		gds = gd.NewStochasticStepper(hyphothesis, x, y, o.LearningRate())
-	default:
-		return nil, regression.ErrUnsupportedGradientDescentVariant
-	}
-
-	var coeffs []float64
-	var err error
-	switch o.ConverganceType() {
-	case options.Iterative:
-		coeffs, err = gd.ConvergeAfter(gds, int(o.ConverganceIndicator()))
-	case options.Automatic:
-		coeffs, err = gd.ConvergeAutomatically(gds, cost, o.ConverganceIndicator())
-	default:
-		return nil, regression.ErrUnsupportedConverganceType
-	}
+	coeffs, err := gd.Run(o, hyphothesis, cost, x, y)
 	if err != nil {
 		return nil, err
 	}
+
 	r2, err := calcR2(s, coeffs)
 	if err != nil {
 		return nil, err
