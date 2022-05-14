@@ -19,9 +19,9 @@ func TestRun(t *testing.T) {
 		want    expected
 	}{
 		{
-			name:    "batch gd n=2 m=100 alpha=0.01 i=60000",
+			name:    "batch gd n=2 m=100 alpha=0.01 i=1000",
 			path:    "n=2_m=100.txt",
-			options: options.WithIterativeConvergance(0.01, options.Batch, 60000),
+			options: options.WithIterativeConvergance(0.01, options.Batch, 1000),
 			want:    expected{acc: 0.75, coeffs: []float64{-3839.0513, 40.652, 33.349}},
 		},
 	}
