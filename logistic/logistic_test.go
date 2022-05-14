@@ -29,6 +29,7 @@ func TestRun(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := WithGradientDescent(tt.options)
 			s, err := regressiontest.LoadTrainingSet(tt.path)
+			t.Log(s)
 			if err != nil {
 				t.Fatalf("cannot load training set %v", err)
 			}
