@@ -39,6 +39,14 @@ type Regression[T TargetType] interface {
 	Run(s TrainingSet) (Model[T], error)
 }
 
+// RegressionFunc is an adapter to allow the use of plain functions as regressions.
+type RegressionFunc[T TargetType] func(s TrainingSet) (Model[T], error)
+
+// Run calls f(s).
+func (f RegressionFunc[T]) Run(s TrainingSet) (Model[T], error) {
+	return f(s)
+}
+
 // TrainingExample represents a single (features, target) example.
 type TrainingExample struct {
 	Features []float64

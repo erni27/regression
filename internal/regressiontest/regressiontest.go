@@ -48,8 +48,8 @@ func Round(v float64, p uint) float64 {
 	return math.Round(v*r) / r
 }
 
-func LoadTrainingSet(fn string) (*regression.TrainingSet, error) {
-	f, err := os.Open("./testdata/" + fn)
+func LoadTrainingSet(path string) (*regression.TrainingSet, error) {
+	f, err := os.Open("./testdata/" + path)
 	if err != nil {
 		return nil, err
 	}

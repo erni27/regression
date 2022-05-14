@@ -31,7 +31,6 @@ func (s *batchStepper) TakeStep() error {
 			}
 			pd += (s.y[i] - hr) * s.x[i][j]
 		}
-		pd /= float64(len(s.x))
 		// Assign new value to the new coefficients vector.
 		nc[j] = s.coeffs[j] + s.lr*pd
 		if math.IsNaN(nc[j]) || math.IsInf(nc[j], 0) {

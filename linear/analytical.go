@@ -8,7 +8,7 @@ import (
 // WithNormalEquation initializes linear regression with analytical approach.
 // It directly finds the value of coefficients by solving normal equation.
 func WithNormalEquation() regression.Regression[float64] {
-	var f regressionFunc = analytical
+	var f regression.RegressionFunc[float64] = analytical
 	return f
 }
 
