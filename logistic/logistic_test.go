@@ -21,7 +21,7 @@ func TestRun(t *testing.T) {
 		{
 			name:    "batch gd n=2 m=100 alpha=0.01 i=1000",
 			path:    "n=2_m=100.txt",
-			options: options.WithIterativeConvergance(0.01, options.Batch, 1000),
+			options: options.WithIterativeConvergance(0.01, options.Batch, 5),
 			want:    expected{acc: 0.75, coeffs: []float64{-3839.0513, 40.652, 33.349}},
 		},
 	}
@@ -29,7 +29,6 @@ func TestRun(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := WithGradientDescent(tt.options)
 			s, err := regressiontest.LoadTrainingSet(tt.path)
-			t.Log(s)
 			if err != nil {
 				t.Fatalf("cannot load training set %v", err)
 			}
