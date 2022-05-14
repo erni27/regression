@@ -1,7 +1,6 @@
 package gd
 
 import (
-	"log"
 	"math"
 
 	"github.com/erni27/regression"
@@ -33,7 +32,6 @@ func (s *batchStepper) TakeStep() error {
 			pd += (s.y[i] - hr) * s.x[i][j]
 		}
 		// Assign new value to the new coefficients vector.
-		log.Println(pd)
 		nc[j] = s.coeffs[j] + s.lr*pd
 		if math.IsNaN(nc[j]) || math.IsInf(nc[j], 0) {
 			return regression.ErrCannotConverge

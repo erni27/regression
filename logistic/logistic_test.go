@@ -22,7 +22,7 @@ func TestRun(t *testing.T) {
 			name:    "batch gd n=2 m=100 alpha=0.01 i=100",
 			path:    "n=2_m=100.txt",
 			options: options.WithIterativeConvergance(0.01, options.Batch, 100),
-			want:    expected{acc: 0.77, coeffs: []float64{-3839.0513, 40.652, 33.349}},
+			want:    expected{acc: 0.6, coeffs: []float64{-7.465, 33.217, -4.415}},
 		},
 	}
 	for _, tt := range tests {
