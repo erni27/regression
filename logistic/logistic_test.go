@@ -19,10 +19,10 @@ func TestRun(t *testing.T) {
 		want    expected
 	}{
 		{
-			name:    "batch gd n=2 m=100 alpha=0.01 i=100000",
+			name:    "batch gd n=2 m=100 alpha=0.01 i=60000",
 			path:    "n=2_m=100.txt",
-			options: options.WithIterativeConvergance(0.01, options.Batch, 100000),
-			want:    expected{acc: 0.77, coeffs: []float64{-4806.139, 40.064, 28.127}},
+			options: options.WithIterativeConvergance(0.01, options.Batch, 60000),
+			want:    expected{acc: 0.75, coeffs: []float64{-3839.0513, 40.652, 33.349}},
 		},
 	}
 	for _, tt := range tests {
