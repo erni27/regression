@@ -29,11 +29,11 @@ func (m model) Accuracy() float64 {
 }
 
 func (m model) String() string {
-	s := fmt.Sprintf("y = %f", m.coeffs[0])
+	s := fmt.Sprintf("y = round(%f", m.coeffs[0])
 	for i, coeff := range m.coeffs[1:] {
 		s += fmt.Sprintf(" + x%d*%f", i+1, coeff)
 	}
-	return s
+	return s + ")"
 }
 
 func calcAccuracy(x [][]float64, y []float64, coeffs []float64) (float64, error) {

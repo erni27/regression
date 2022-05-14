@@ -8,9 +8,9 @@ import (
 	"github.com/erni27/regression/options"
 )
 
-// WithGradientDescent initializes linear regression with numerical approach.
+// WithGradientDescent initializes logistic regression with numerical approach.
 // It finds the value of coefficients by taking steps in each iteration towards
-// the minimum of a cost function (LMS).
+// the minimum of a cost function.
 func WithGradientDescent(o options.Options) regression.Regression[int] {
 	var f regression.RegressionFunc[int] = func(s regression.TrainingSet) (regression.Model[int], error) {
 		return numerical(o, s)

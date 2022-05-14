@@ -27,8 +27,11 @@ type TargetType interface {
 
 // A Model is a trained regression model.
 type Model[T TargetType] interface {
+	// Predict returns the predicated target value for the given input.
 	Predict(x []float64) (T, error)
+	// Coefficients returns the trained regression model's coefficients.
 	Coefficients() []float64
+	// Accuracy returns calculated accuracy for trained model.
 	Accuracy() float64
 }
 
