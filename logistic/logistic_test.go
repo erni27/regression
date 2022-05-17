@@ -1,4 +1,4 @@
-package linear
+package logistic
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 
 func TestRun_WithGradientDescent(t *testing.T) {
 	type expected struct {
-		r2     float64
+		acc    float64
 		coeffs []float64
 	}
 	tests := []struct {
@@ -19,16 +19,10 @@ func TestRun_WithGradientDescent(t *testing.T) {
 		want    expected
 	}{
 		{
-			name:    "batch gd n=1 m=97 alpha=0.0001 i=1500",
-			path:    "n=1_m=97.txt",
-			options: options.WithIterativeConvergance(0.0001, options.Batch, 2000),
-			want:    expected{r2: 0.702, coeffs: []float64{-3.776, 1.181}},
-		},
-		{
-			name:    "stochastic iterative n=1 m=97 alpha=0.0001 i=150000",
-			path:    "n=1_m=97.txt",
-			options: options.WithIterativeConvergance(0.0001, options.Stochastic, 150000),
-			want:    expected{r2: 0.7, coeffs: []float64{-3.583, 1.187}},
+			name:    "batch gd n=2 m=100 alpha=0.01 i=100",
+			path:    "n=2_m=100.txt",
+			options: options.WithIterativeConvergance(0.01, options.Batch, 100),
+			want:    expected{acc: 0.6, coeffs: []float64{-7.465, 33.217, -4.415}},
 		},
 	}
 	for _, tt := range tests {
@@ -46,9 +40,9 @@ func TestRun_WithGradientDescent(t *testing.T) {
 			if !regressiontest.AreFloatSlicesEqual(coeffs, tt.want.coeffs, 3) {
 				t.Errorf("got coefficients %v, want %v", coeffs, tt.want.coeffs)
 			}
-			r2 := got.Accuracy()
-			if !regressiontest.AreFloatEqual(r2, tt.want.r2, 2) {
-				t.Errorf("got r2 %v, want %v", r2, tt.want.r2)
+			acc := got.Accuracy()
+			if acc != tt.want.acc {
+				t.Errorf("got acc %v, want %v", acc, tt.want.acc)
 			}
 		})
 	}

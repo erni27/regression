@@ -27,8 +27,11 @@ type TargetType interface {
 
 // A Model is a trained regression model.
 type Model[T TargetType] interface {
+	// Predict returns the predicated target value for the given input.
 	Predict(x []float64) (T, error)
+	// Coefficients returns the trained regression model's coefficients.
 	Coefficients() []float64
+	// Accuracy returns calculated accuracy for trained model.
 	Accuracy() float64
 }
 
@@ -37,6 +40,14 @@ type Regression[T TargetType] interface {
 	// Run runs regression against input training set.
 	// It returns trained Model if succeded, otherwise returns an error.
 	Run(s TrainingSet) (Model[T], error)
+}
+
+// RegressionFunc is an adapter to allow the use of plain functions as regressions.
+type RegressionFunc[T TargetType] func(s TrainingSet) (Model[T], error)
+
+// Run calls f(s).
+func (f RegressionFunc[T]) Run(s TrainingSet) (Model[T], error) {
+	return f(s)
 }
 
 // TrainingExample represents a single (features, target) example.

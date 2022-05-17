@@ -1,5 +1,11 @@
 package gd
 
+import (
+	"math"
+
+	"github.com/erni27/regression"
+)
+
 // newStochasticStepper returns a new Stepper which uses stochastic gradient descent algorithm
 // to calculate next steps.
 func newStochasticStepper(h Hyphothesis, x [][]float64, y []float64, lr float64) stepper {
@@ -22,6 +28,9 @@ func (s *stochasticStepper) TakeStep() error {
 			return err
 		}
 		nc[j] = s.coeffs[j] + s.lr*(s.y[s.i]-hr)*s.x[s.i][j]
+		if math.IsNaN(nc[j]) || math.IsInf(nc[j], 0) {
+			return regression.ErrCannotConverge
+		}
 	}
 	s.i++
 	if s.i == len(s.y) {
