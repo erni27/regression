@@ -78,10 +78,7 @@ func convergeAutomatically(s stepper, c CostFunc, t float64) ([]float64, error) 
 		if err != nil {
 			return nil, err
 		}
-		if nc/oc > 1 {
-			return nil, regression.ErrCannotConverge
-		}
-		if 1-nc/oc < t {
+		if r := 1 - nc/oc; r > 0 && r < t {
 			return s.CurrentCoefficients(), nil
 		}
 	}

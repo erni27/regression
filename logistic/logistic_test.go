@@ -7,7 +7,7 @@ import (
 	"github.com/erni27/regression/options"
 )
 
-func TestRun(t *testing.T) {
+func TestRun_WithGradientDescent(t *testing.T) {
 	type expected struct {
 		acc    float64
 		coeffs []float64

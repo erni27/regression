@@ -6,7 +6,7 @@ import (
 	"github.com/erni27/regression/internal/regressiontest"
 )
 
-func TestRunAnalytical(t *testing.T) {
+func TestRun_WithNormalEquation(t *testing.T) {
 	type expected struct {
 		r2     float64
 		coeffs []float64

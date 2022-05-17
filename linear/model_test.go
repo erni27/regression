@@ -35,7 +35,7 @@ func TestPredict(t *testing.T) {
 	}
 }
 
-func TestPredictInvalidFeatureVector(t *testing.T) {
+func TestPredict_InvalidFeatureVector(t *testing.T) {
 	tests := []struct {
 		name   string
 		arg    []float64
