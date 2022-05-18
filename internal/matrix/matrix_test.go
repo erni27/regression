@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -44,9 +45,10 @@ func TestInverse(t *testing.T) {
 			},
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Inverse(tt.matrix)
+			got, err := Inverse(ctx, tt.matrix)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
@@ -85,9 +87,10 @@ func TestMultiply(t *testing.T) {
 			},
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Multiply(tt.x, tt.y)
+			got, err := Multiply(ctx, tt.x, tt.y)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
@@ -134,9 +137,10 @@ func TestTranspose(t *testing.T) {
 			},
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Transpose(tt.matrix)
+			got, err := Transpose(ctx, tt.matrix)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
@@ -164,9 +168,10 @@ func TestMultiplyByVector(t *testing.T) {
 			want: []float64{1, -3},
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := MultiplyByVector(tt.x, tt.y)
+			got, err := MultiplyByVector(ctx, tt.x, tt.y)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}

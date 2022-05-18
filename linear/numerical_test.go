@@ -1,6 +1,7 @@
 package linear
 
 import (
+	"context"
 	"testing"
 
 	"github.com/erni27/regression/internal/regressiontest"
@@ -31,6 +32,7 @@ func TestRun_WithGradientDescent(t *testing.T) {
 			want:    expected{r2: 0.7, coeffs: []float64{-3.583, 1.187}},
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := WithGradientDescent(tt.options)
@@ -38,7 +40,7 @@ func TestRun_WithGradientDescent(t *testing.T) {
 			if err != nil {
 				t.Fatalf("cannot load training set %v", err)
 			}
-			got, err := r.Run(*s)
+			got, err := r.Run(ctx, s)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}

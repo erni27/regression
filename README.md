@@ -4,7 +4,7 @@
 
 `regression/linear` provides implementation of the linear regression model.
 
-`regression/logistic` provides implementation of the logistic model.
+`regression/logistic` provides implementation of the logistic regression model.
 
 ## Why?
 

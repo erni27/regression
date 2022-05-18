@@ -1,6 +1,7 @@
 package gd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -35,6 +36,8 @@ func cost(x [][]float64, y []float64, coeffs []float64) (float64, error) {
 	return c / float64((2 * m)), nil
 }
 
+var gradientDescent GradientDescent = New(hyphothesis, cost)
+
 func TestRun(t *testing.T) {
 	x := [][]float64{
 		{1, 2},
@@ -68,9 +71,10 @@ func TestRun(t *testing.T) {
 			want: []float64{0.867, 1.105},
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Run(tt.opt, hyphothesis, cost, x, y)
+			got, err := gradientDescent.Run(ctx, tt.opt, x, y)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
@@ -109,9 +113,10 @@ func TestRun_TooLargeLearningRate(t *testing.T) {
 			opt:  options.WithAutomaticConvergance(0.1, options.Stochastic, 0.01),
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Run(tt.opt, hyphothesis, cost, x, y)
+			got, err := gradientDescent.Run(ctx, tt.opt, x, y)
 			fmt.Print(got)
 			if err != regression.ErrCannotConverge {
 				t.Fatalf("want %v, got %v", regression.ErrCannotConverge, err)

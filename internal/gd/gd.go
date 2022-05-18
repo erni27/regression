@@ -2,6 +2,8 @@
 package gd
 
 import (
+	"context"
+
 	"github.com/erni27/regression"
 	"github.com/erni27/regression/options"
 )
@@ -12,15 +14,26 @@ type Hyphothesis func(x []float64, coeffs []float64) (float64, error)
 // CostFunc is a function template for cost function used in gradient descent algorithm.
 type CostFunc func(x [][]float64, y []float64, coeffs []float64) (float64, error)
 
+// GradientDescent holds the hyphothesis and cost functions needed by gradient descent algorithm.
+type GradientDescent struct {
+	h Hyphothesis
+	c CostFunc
+}
+
+// New creates new gradient descent.
+func New(h Hyphothesis, c CostFunc) GradientDescent {
+	return GradientDescent{h, c}
+}
+
 // Run runs gradient descent algorithm.
-func Run(o options.Options, h Hyphothesis, c CostFunc, x [][]float64, y []float64) ([]float64, error) {
+func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float64, y []float64) ([]float64, error) {
 	// Init stepper.
 	var gds stepper
 	switch o.GradientDescentVariant() {
 	case options.Batch:
-		gds = newBatchStepper(h, x, y, o.LearningRate())
+		gds = newBatchStepper(g.h, x, y, o.LearningRate())
 	case options.Stochastic:
-		gds = newStochasticStepper(h, x, y, o.LearningRate())
+		gds = newStochasticStepper(g.h, x, y, o.LearningRate())
 	default:
 		return nil, regression.ErrUnsupportedGradientDescentVariant
 	}
@@ -29,7 +42,7 @@ func Run(o options.Options, h Hyphothesis, c CostFunc, x [][]float64, y []float6
 	case options.Iterative:
 		return convergeAfter(gds, int(o.ConverganceIndicator()))
 	case options.Automatic:
-		return convergeAutomatically(gds, c, o.ConverganceIndicator())
+		return convergeAutomatically(gds, g.c, o.ConverganceIndicator())
 	default:
 		return nil, regression.ErrUnsupportedConverganceType
 	}
