@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/erni27/regression"
+	"github.com/erni27/regression/internal/long"
 	"github.com/erni27/regression/internal/matrix"
 )
 
@@ -20,7 +21,6 @@ func analytical(ctx context.Context, s regression.TrainingSet) (regression.Model
 	s.AddDummyFeatures()
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
-
 	coeffs, err := solveNormalEquation(ctx, x, y)
 	if err != nil {
 		return nil, err
@@ -41,19 +41,19 @@ func solveNormalEquation(ctx context.Context, x [][]float64, y []float64) ([]flo
 	if err != nil {
 		return nil, err
 	}
-	p, err := matrix.Multiply(ctx, xt, x)
+	p, err := long.Run(ctx, func() ([][]float64, error) { return matrix.Multiply(ctx, xt, x) })
 	if err != nil {
 		return nil, err
 	}
-	p, err = matrix.Inverse(ctx, p)
+	p, err = long.Run(ctx, func() ([][]float64, error) { return matrix.Inverse(ctx, p) })
 	if err != nil {
 		return nil, err
 	}
-	p, err = matrix.Multiply(ctx, p, xt)
+	p, err = long.Run(ctx, func() ([][]float64, error) { return matrix.Multiply(ctx, p, xt) })
 	if err != nil {
 		return nil, err
 	}
-	o, err := matrix.MultiplyByVector(ctx, p, y)
+	o, err := long.Run(ctx, func() ([]float64, error) { return matrix.MultiplyByVector(ctx, p, y) })
 	if err != nil {
 		return nil, err
 	}

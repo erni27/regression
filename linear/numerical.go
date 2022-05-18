@@ -5,6 +5,7 @@ import (
 
 	"github.com/erni27/regression"
 	"github.com/erni27/regression/internal/gd"
+	"github.com/erni27/regression/internal/long"
 	"github.com/erni27/regression/options"
 )
 
@@ -26,8 +27,7 @@ func numerical(ctx context.Context, o options.Options, s regression.TrainingSet)
 	s.AddDummyFeatures()
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
-
-	coeffs, err := gradientDescent.Run(ctx, o, x, y)
+	coeffs, err := long.Run(ctx, func() ([]float64, error) { return gradientDescent.Run(ctx, o, x, y) })
 	if err != nil {
 		return nil, err
 	}

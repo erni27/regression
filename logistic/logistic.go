@@ -6,6 +6,7 @@ import (
 
 	"github.com/erni27/regression"
 	"github.com/erni27/regression/internal/gd"
+	"github.com/erni27/regression/internal/long"
 	"github.com/erni27/regression/options"
 )
 
@@ -16,19 +17,18 @@ var gradientDescent gd.GradientDescent = gd.New(hyphothesis, cost)
 // the minimum of a cost function.
 func WithGradientDescent(o options.Options) regression.Regression[int] {
 	var f regression.RegressionFunc[int] = func(ctx context.Context, s regression.TrainingSet) (regression.Model[int], error) {
-		return numerical(ctx, o, s)
+		return run(ctx, o, s)
 	}
 	return f
 }
 
 // run runs logistic regression for given training set. It uses an numerical approach
 // for computing coefficients (gradient descent).
-func numerical(ctx context.Context, o options.Options, s regression.TrainingSet) (regression.Model[int], error) {
+func run(ctx context.Context, o options.Options, s regression.TrainingSet) (regression.Model[int], error) {
 	s.AddDummyFeatures()
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
-
-	coeffs, err := gradientDescent.Run(ctx, o, x, y)
+	coeffs, err := long.Run(ctx, func() ([]float64, error) { return gradientDescent.Run(ctx, o, x, y) })
 	if err != nil {
 		return nil, err
 	}
