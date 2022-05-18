@@ -1,6 +1,7 @@
 package linear
 
 import (
+	"context"
 	"testing"
 
 	"github.com/erni27/regression/internal/regressiontest"
@@ -28,13 +29,14 @@ func TestRun_WithNormalEquation(t *testing.T) {
 		},
 	}
 	r := WithNormalEquation()
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := regressiontest.LoadTrainingSet(tt.path)
 			if err != nil {
 				t.Fatalf("cannot load training set %v", err)
 			}
-			got, err := r.Run(*s)
+			got, err := r.Run(ctx, s)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}

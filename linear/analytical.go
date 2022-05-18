@@ -1,7 +1,10 @@
 package linear
 
 import (
+	"context"
+
 	"github.com/erni27/regression"
+	"github.com/erni27/regression/internal/long"
 	"github.com/erni27/regression/internal/matrix"
 )
 
@@ -14,12 +17,11 @@ func WithNormalEquation() regression.Regression[float64] {
 
 // analytical runs linear regression for given training set. It uses an analytical approach
 // for computing coefficients (normal equation).
-func analytical(s regression.TrainingSet) (regression.Model[float64], error) {
+func analytical(ctx context.Context, s regression.TrainingSet) (regression.Model[float64], error) {
 	s.AddDummyFeatures()
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
-
-	coeffs, err := solveNormalEquation(x, y)
+	coeffs, err := solveNormalEquation(ctx, x, y)
 	if err != nil {
 		return nil, err
 	}
@@ -34,24 +36,24 @@ func analytical(s regression.TrainingSet) (regression.Model[float64], error) {
 //
 // The normal equation minimizes the cost function for linear regression (LMS) by explicity taking its derivatives
 // with respect to the coefficients and setting them to zero.
-func solveNormalEquation(x [][]float64, y []float64) ([]float64, error) {
-	xt, err := matrix.Transpose(x)
+func solveNormalEquation(ctx context.Context, x [][]float64, y []float64) ([]float64, error) {
+	xt, err := matrix.Transpose(ctx, x)
 	if err != nil {
 		return nil, err
 	}
-	p, err := matrix.Multiply(xt, x)
+	p, err := long.Run(ctx, func() ([][]float64, error) { return matrix.Multiply(ctx, xt, x) })
 	if err != nil {
 		return nil, err
 	}
-	p, err = matrix.Inverse(p)
+	p, err = long.Run(ctx, func() ([][]float64, error) { return matrix.Inverse(ctx, p) })
 	if err != nil {
 		return nil, err
 	}
-	p, err = matrix.Multiply(p, xt)
+	p, err = long.Run(ctx, func() ([][]float64, error) { return matrix.Multiply(ctx, p, xt) })
 	if err != nil {
 		return nil, err
 	}
-	o, err := matrix.MultiplyByVector(p, y)
+	o, err := long.Run(ctx, func() ([]float64, error) { return matrix.MultiplyByVector(ctx, p, y) })
 	if err != nil {
 		return nil, err
 	}

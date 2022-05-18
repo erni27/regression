@@ -1,6 +1,7 @@
 package logistic
 
 import (
+	"context"
 	"testing"
 
 	"github.com/erni27/regression/internal/regressiontest"
@@ -25,6 +26,7 @@ func TestRun_WithGradientDescent(t *testing.T) {
 			want:    expected{acc: 0.6, coeffs: []float64{-7.465, 33.217, -4.415}},
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := WithGradientDescent(tt.options)
@@ -32,7 +34,7 @@ func TestRun_WithGradientDescent(t *testing.T) {
 			if err != nil {
 				t.Fatalf("cannot load training set %v", err)
 			}
-			got, err := r.Run(*s)
+			got, err := r.Run(ctx, s)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}

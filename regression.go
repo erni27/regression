@@ -2,7 +2,10 @@
 // that implement a concrete regression algorithm.
 package regression
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 var (
 	// ErrCannotConverge is returned if gradient descent cannot converge.
@@ -28,7 +31,7 @@ type TargetType interface {
 // A Model is a trained regression model.
 type Model[T TargetType] interface {
 	// Predict returns the predicated target value for the given input.
-	Predict(x []float64) (T, error)
+	Predict([]float64) (T, error)
 	// Coefficients returns the trained regression model's coefficients.
 	Coefficients() []float64
 	// Accuracy returns calculated accuracy for trained model.
@@ -39,15 +42,15 @@ type Model[T TargetType] interface {
 type Regression[T TargetType] interface {
 	// Run runs regression against input training set.
 	// It returns trained Model if succeded, otherwise returns an error.
-	Run(s TrainingSet) (Model[T], error)
+	Run(context.Context, TrainingSet) (Model[T], error)
 }
 
 // RegressionFunc is an adapter to allow the use of plain functions as regressions.
-type RegressionFunc[T TargetType] func(s TrainingSet) (Model[T], error)
+type RegressionFunc[T TargetType] func(context.Context, TrainingSet) (Model[T], error)
 
 // Run calls f(s).
-func (f RegressionFunc[T]) Run(s TrainingSet) (Model[T], error) {
-	return f(s)
+func (f RegressionFunc[T]) Run(ctx context.Context, s TrainingSet) (Model[T], error) {
+	return f(ctx, s)
 }
 
 // TrainingExample represents a single (features, target) example.
@@ -57,12 +60,12 @@ type TrainingExample struct {
 }
 
 // NewTrainingSet creates a new training set if examples are consistent.
-// It doesn't check for correctness of values. If examples are not consistent, returns an error.
-func NewTrainingSet(exs []TrainingExample) (*TrainingSet, error) {
+// If examples are not consistent, returns an error. It doesn't check for correctness of values.
+func NewTrainingSet(exs []TrainingExample) (TrainingSet, error) {
 	if !areExamplesConsistent(exs) {
-		return nil, ErrInvalidTrainingSet
+		return TrainingSet{}, ErrInvalidTrainingSet
 	}
-	return &TrainingSet{examples: exs}, nil
+	return TrainingSet{examples: exs}, nil
 }
 
 // TrainingSet represents set of traning examples.
