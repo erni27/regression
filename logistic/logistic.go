@@ -28,15 +28,15 @@ func run(ctx context.Context, o options.Options, s regression.TrainingSet) (regr
 	s.AddDummyFeatures()
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
-	coeffs, err := long.Run(ctx, func() ([]float64, error) { return gradientDescent.Run(ctx, o, x, y) })
+	gr, err := long.Run(ctx, func() (gd.Result, error) { return gradientDescent.Run(ctx, o, x, y) })
 	if err != nil {
 		return nil, err
 	}
-	acc, err := calcAccuracy(x, y, coeffs)
+	acc, err := calcAccuracy(x, y, gr.Coefficients)
 	if err != nil {
 		return nil, err
 	}
-	return model{coeffs: coeffs, acc: acc}, nil
+	return model{coeffs: gr.Coefficients, acc: acc}, nil
 }
 
 // hyphothesis calculates the hyphothesis function for the logistic regression model.
@@ -56,5 +56,14 @@ func hyphothesis(x []float64, coeffs []float64) (float64, error) {
 
 // cost calculates cost function value for logistic regression.
 func cost(x [][]float64, y []float64, coeffs []float64) (float64, error) {
-	panic("not implemented")
+	m := len(x)
+	var c float64
+	for i := 0; i < m; i++ {
+		hr, err := hyphothesis(x[i], coeffs)
+		if err != nil {
+			return 0, err
+		}
+		c += -y[i]*math.Log(hr) - (1-y[i])*math.Log(1-hr)
+	}
+	return c / float64(m), nil
 }

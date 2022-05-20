@@ -15,6 +15,8 @@ var (
 	ErrUnsupportedGradientDescentVariant = errors.New("unsupported gradient descent variant")
 	// ErrUnsupportedConverganceType is returned if unsupported convergance type was chosen.
 	ErrUnsupportedConverganceType = errors.New("unsupported convergance type")
+	// ErrUnsupportedScalingTechnique is returned if unsupported features' scaling technique was chosen.
+	ErrUnsupportedScalingTechnique = errors.New("unsupported scaling technique")
 	// ErrInvalidTrainingSet is returned if features vectors included in the set are not consistent.
 	ErrInvalidTrainingSet = errors.New("invalid training set")
 	// ErrInvalidFeatureVector is returned if feature vector is invalid.

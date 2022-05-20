@@ -8,6 +8,12 @@ import (
 	"github.com/erni27/regression/options"
 )
 
+type Result struct {
+	Coefficients []float64
+	U            []float64
+	S            []float64
+}
+
 // Hyphothesis is a function template for a hyphothesis function used in gradient descent algorithm.
 type Hyphothesis func(x []float64, coeffs []float64) (float64, error)
 
@@ -26,7 +32,16 @@ func New(h Hyphothesis, c CostFunc) GradientDescent {
 }
 
 // Run runs gradient descent algorithm.
-func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float64, y []float64) ([]float64, error) {
+func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float64, y []float64) (Result, error) {
+	// Scale features.
+	scaler, err := NewScaler(o.FeatureScalingTechnique())
+	if err != nil {
+		return Result{}, err
+	}
+	sr := scaler.Scale(x)
+	x = sr.X
+	res := Result{U: sr.U, S: sr.S}
+
 	// Init stepper.
 	var gds stepper
 	switch o.GradientDescentVariant() {
@@ -35,17 +50,26 @@ func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float
 	case options.Stochastic:
 		gds = newStochasticStepper(g.h, x, y, o.LearningRate())
 	default:
-		return nil, regression.ErrUnsupportedGradientDescentVariant
+		return Result{}, regression.ErrUnsupportedGradientDescentVariant
 	}
 
+	var coeffs []float64
 	switch o.ConverganceType() {
 	case options.Iterative:
-		return convergeAfter(gds, int(o.ConverganceIndicator()))
+		coeffs, err = convergeAfter(gds, int(o.ConverganceIndicator()))
+		if err != nil {
+			return Result{}, err
+		}
 	case options.Automatic:
-		return convergeAutomatically(gds, g.c, o.ConverganceIndicator())
+		coeffs, err = convergeAutomatically(gds, g.c, o.ConverganceIndicator())
+		if err != nil {
+			return Result{}, err
+		}
 	default:
-		return nil, regression.ErrUnsupportedConverganceType
+		return Result{}, regression.ErrUnsupportedConverganceType
 	}
+	res.Coefficients = coeffs
+	return res, nil
 }
 
 // A stepper wraps logic around taking steps (calculating new coefficients' values).
@@ -95,25 +119,4 @@ func convergeAutomatically(s stepper, c CostFunc, t float64) ([]float64, error) 
 			return s.CurrentCoefficients(), nil
 		}
 	}
-}
-
-// baseStepper is a prototype for concrete steppers. It should be embedded.
-type baseStepper struct {
-	hypho  Hyphothesis
-	x      [][]float64
-	y      []float64
-	lr     float64
-	coeffs []float64
-}
-
-func (s baseStepper) CurrentCoefficients() []float64 {
-	return s.coeffs
-}
-
-func (s baseStepper) X() [][]float64 {
-	return s.x
-}
-
-func (s baseStepper) Y() []float64 {
-	return s.y
 }

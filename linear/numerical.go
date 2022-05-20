@@ -27,13 +27,13 @@ func numerical(ctx context.Context, o options.Options, s regression.TrainingSet)
 	s.AddDummyFeatures()
 	x := s.GetDesignMatrix()
 	y := s.GetTargetVector()
-	coeffs, err := long.Run(ctx, func() ([]float64, error) { return gradientDescent.Run(ctx, o, x, y) })
+	gr, err := long.Run(ctx, func() (gd.Result, error) { return gradientDescent.Run(ctx, o, x, y) })
 	if err != nil {
 		return nil, err
 	}
-	r2, err := calcR2(x, y, coeffs)
+	r2, err := calcR2(x, y, gr.Coefficients)
 	if err != nil {
 		return nil, err
 	}
-	return model{coeffs: coeffs, r2: r2}, nil
+	return model{coeffs: gr.Coefficients, r2: r2}, nil
 }
