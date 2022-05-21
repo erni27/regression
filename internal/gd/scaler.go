@@ -7,16 +7,19 @@ import (
 	"github.com/erni27/regression/options"
 )
 
+// FeatureScaler is the interface that wraps the basic Scale method.
 type FeatureScaler interface {
 	Scale([][]float64) ScalingResult
 }
 
+// ScalerFunc is an adapter to allow the use of plain functions as scalers.
 type ScalerFunc func([][]float64) ScalingResult
 
 func (f ScalerFunc) Scale(x [][]float64) ScalingResult {
 	return f(x)
 }
 
+// NewScaler returns a new scaler. If unsupported FeatureScalingTechnique is passed, an error is returned.
 func NewScaler(fst options.FeatureScalingTechnique) (FeatureScaler, error) {
 	var s ScalerFunc
 	switch fst {
@@ -32,12 +35,14 @@ func NewScaler(fst options.FeatureScalingTechnique) (FeatureScaler, error) {
 	return s, nil
 }
 
+// ScalingResult holds the scaled features set along with the scaling parameters.
 type ScalingResult struct {
 	X [][]float64
 	U []float64
 	S []float64
 }
 
+// normalize performs features scaling through normalization.
 func normalize(x [][]float64) ScalingResult {
 	m := len(x)
 	n := len(x[0]) - 1
@@ -73,6 +78,7 @@ func normalize(x [][]float64) ScalingResult {
 	return ScalingResult{X: norm, U: mean, S: ran}
 }
 
+// standarize performs features scaling through standarization.
 func standarize(x [][]float64) ScalingResult {
 	m := len(x)
 	n := len(x[0]) - 1
@@ -104,6 +110,9 @@ func standarize(x [][]float64) ScalingResult {
 	return ScalingResult{X: stand, U: mean, S: v}
 }
 
+// none does not perform feature scaling.
+// It returns unchanged features set along with the identity scaling parameters.
+// A features vector scaled with those parameters remains the same.
 func none(x [][]float64) ScalingResult {
 	n := len(x[0]) - 1
 	u := make([]float64, n)

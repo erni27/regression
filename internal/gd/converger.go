@@ -7,16 +7,19 @@ import (
 	"github.com/erni27/regression/options"
 )
 
+// Converger is the interface that wraps the basic Converge method.
 type Converger interface {
 	Converge(context.Context, Stepper) ([]float64, error)
 }
 
+// ConvergerFunc is an adapter to allow the use of plain functions as convergers.
 type ConvergerFunc func(context.Context, Stepper) ([]float64, error)
 
 func (f ConvergerFunc) Converge(ctx context.Context, s Stepper) ([]float64, error) {
 	return f(ctx, s)
 }
 
+// NewConverger returns a new converger. If unsupported ConvergenceType is passed, an error is returned.
 func NewConverger(ct options.ConverganceType, ci float64, c CostFunc) (Converger, error) {
 	var cf ConvergerFunc
 	switch ct {

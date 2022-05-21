@@ -31,7 +31,7 @@ func New(h Hyphothesis, c CostFunc) GradientDescent {
 	return GradientDescent{h, c}
 }
 
-// Run runs gradient descent algorithm.
+// Run runs the gradient descent algorithm.
 func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float64, y []float64) (Result, error) {
 	scaler, err := NewScaler(o.FeatureScalingTechnique())
 	if err != nil {

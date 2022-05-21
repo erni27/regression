@@ -13,9 +13,9 @@ func Run[T any](ctx context.Context, f func() (T, error)) (T, error) {
 		done <- struct{}{}
 	}()
 	select {
-	case <-ctx.Done():
-		return v, ctx.Err()
 	case <-done:
 		return v, err
+	case <-ctx.Done():
+		return v, ctx.Err()
 	}
 }
