@@ -4,7 +4,33 @@ import (
 	"math"
 
 	"github.com/erni27/regression"
+	"github.com/erni27/regression/options"
 )
+
+// A Stepper wraps logic around taking steps (calculating new coefficients' values).
+type Stepper interface {
+	// TakeStep takes single step towards cost function minimum.
+	TakeStep() error
+	// CurrentCoefficients returns current coefficients calculated by stepper.
+	CurrentCoefficients() []float64
+	// X returns design matrix used in calculations.
+	X() [][]float64
+	// Y returns target vector used in calculations.
+	Y() []float64
+}
+
+func NewStepper(gdv options.GradientDescentVariant, h Hyphothesis, x [][]float64, y []float64, lr float64) (Stepper, error) {
+	var gds Stepper
+	switch gdv {
+	case options.Batch:
+		gds = &batchStepper{baseStepper{hypho: h, x: x, y: y, lr: lr, coeffs: make([]float64, len(x[0]))}}
+	case options.Stochastic:
+		gds = &stochasticStepper{baseStepper{hypho: h, x: x, y: y, lr: lr, coeffs: make([]float64, len(x[0]))}, 0}
+	default:
+		return nil, regression.ErrUnsupportedGradientDescentVariant
+	}
+	return gds, nil
+}
 
 // baseStepper is a prototype for concrete steppers. It should be embedded.
 type baseStepper struct {
@@ -27,15 +53,7 @@ func (s baseStepper) Y() []float64 {
 	return s.y
 }
 
-// newBatchStepper returns a new Stepper which uses batch gradient descent algorithm
-// to calculate next steps.
-func newBatchStepper(h Hyphothesis, x [][]float64, y []float64, lr float64) stepper {
-	return &batchStepper{baseStepper{hypho: h, x: x, y: y, lr: lr, coeffs: make([]float64, len(x[0]))}}
-}
-
-// batchStepper takes steps (calculates next values of the coefficients)
-// according to the batch gradient descent variant.
-// It implements Stepper interface.
+// batchStepper takes steps (calculates next values of the coefficients) according to the batch gradient descent variant.
 type batchStepper struct {
 	baseStepper
 }
@@ -62,15 +80,7 @@ func (s *batchStepper) TakeStep() error {
 	return nil
 }
 
-// newStochasticStepper returns a new Stepper which uses stochastic gradient descent algorithm
-// to calculate next steps.
-func newStochasticStepper(h Hyphothesis, x [][]float64, y []float64, lr float64) stepper {
-	return &stochasticStepper{baseStepper{hypho: h, x: x, y: y, lr: lr, coeffs: make([]float64, len(x[0]))}, 0}
-}
-
-// stochasticStepper takes steps (calculates next values of the coefficients)
-// according to the stochastic gradient descent variant.
-// It implements Stepper interface.
+// stochasticStepper takes steps (calculates next values of the coefficients) according to the stochastic gradient descent variant.
 type stochasticStepper struct {
 	baseStepper
 	i int
