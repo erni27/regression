@@ -6,6 +6,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/erni27/regression"
 	"github.com/erni27/regression/options"
 )
 
@@ -16,6 +17,32 @@ type stepperMock struct {
 
 func (s stepperMock) TakeStep() error {
 	return s.takeStep()
+}
+
+func TestNewConverger(t *testing.T) {
+	tests := []struct {
+		name    string
+		ct      options.ConverganceType
+		wantErr bool
+		err     error
+	}{
+		{name: "iterative", ct: options.Iterative, wantErr: false},
+		{name: "automatic", ct: options.Automatic, wantErr: false},
+		{name: "unsupported", ct: 0, wantErr: true, err: regression.ErrUnsupportedConverganceType},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, err := NewConverger(tt.ct, 0, nil)
+			if (err != nil) != tt.wantErr {
+				if err != tt.err {
+					t.Fatalf("want error %v, got %v", tt.err, err)
+				}
+			}
+			if !tt.wantErr && c == nil {
+				t.Fatalf("want not nil converger")
+			}
+		})
+	}
 }
 
 func TestConverge_Iterative(t *testing.T) {
