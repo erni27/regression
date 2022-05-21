@@ -55,11 +55,12 @@ func normalize(x [][]float64) ScalingResult {
 	mean := make([]float64, n)
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
-			mean[j] += x[i][j]
-			if max[j] < x[i][j] {
-				max[j] = x[i][j]
-			} else if min[j] > x[i][j] {
-				min[j] = x[i][j]
+			mean[j] += x[i][j+1]
+			if max[j] < x[i][j+1] {
+				max[j] = x[i][j+1]
+			}
+			if min[j] > x[i][j+1] {
+				min[j] = x[i][j+1]
 			}
 		}
 	}
@@ -70,9 +71,10 @@ func normalize(x [][]float64) ScalingResult {
 	}
 	norm := make([][]float64, m)
 	for i := 0; i < m; i++ {
-		norm[i] = make([]float64, n)
+		norm[i] = make([]float64, n+1)
+		norm[i][0] = 1
 		for j := 0; j < n; j++ {
-			norm[i][j] = (x[i][j] - mean[j]) / ran[j]
+			norm[i][j+1] = (x[i][j+1] - mean[j]) / ran[j]
 		}
 	}
 	return ScalingResult{X: norm, U: mean, S: ran}
@@ -99,12 +101,14 @@ func standarize(x [][]float64) ScalingResult {
 	}
 	for i := 0; i < n; i++ {
 		v[i] /= float64(m)
+		v[i] = math.Sqrt(v[i])
 	}
 	stand := make([][]float64, m)
 	for i := 0; i < m; i++ {
-		stand[i] = make([]float64, n)
+		stand[i] = make([]float64, n+1)
+		stand[i][0] = 1
 		for j := 0; j < n; j++ {
-			stand[i][j] = (x[i][j+1] - mean[j]) / v[j]
+			stand[i][j+1] = (x[i][j+1] - mean[j]) / v[j]
 		}
 	}
 	return ScalingResult{X: stand, U: mean, S: v}
