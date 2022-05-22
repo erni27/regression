@@ -1,4 +1,4 @@
-package gd
+package scaling
 
 import (
 	"testing"
@@ -40,13 +40,13 @@ func TestScale(t *testing.T) {
 		name string
 		fts  options.FeatureScalingTechnique
 		x    [][]float64
-		want ScalingResult
+		want Result
 	}{
 		{
 			name: "standarization n=1 m=8",
 			fts:  options.Standarization,
 			x:    [][]float64{{1, 2}, {1, 4}, {1, 4}, {1, 4}, {1, 5}, {1, 5}, {1, 7}, {1, 9}},
-			want: ScalingResult{
+			want: Result{
 				X: [][]float64{{1, -1.5}, {1, -0.5}, {1, -0.5}, {1, -0.5}, {1, 0}, {1, 0}, {1, 1}, {1, 2}},
 				U: []float64{5},
 				S: []float64{2},
@@ -56,7 +56,7 @@ func TestScale(t *testing.T) {
 			name: "normalization n=1 m=8",
 			fts:  options.Normalization,
 			x:    [][]float64{{1, 2}, {1, 4}, {1, 4}, {1, 4}, {1, 5}, {1, 5}, {1, 7}, {1, 9}},
-			want: ScalingResult{
+			want: Result{
 				X: [][]float64{{1, -0.429}, {1, -0.143}, {1, -0.143}, {1, -0.143}, {1, 0}, {1, 0}, {1, 0.286}, {1, 0.571}},
 				U: []float64{5},
 				S: []float64{7},
@@ -66,7 +66,7 @@ func TestScale(t *testing.T) {
 			name: "none n=1 m=8",
 			fts:  options.None,
 			x:    [][]float64{{1, 2}, {1, 4}, {1, 4}, {1, 4}, {1, 5}, {1, 5}, {1, 7}, {1, 9}},
-			want: ScalingResult{
+			want: Result{
 				X: [][]float64{{1, 2}, {1, 4}, {1, 4}, {1, 4}, {1, 5}, {1, 5}, {1, 7}, {1, 9}},
 				U: []float64{0},
 				S: []float64{1},
@@ -76,7 +76,7 @@ func TestScale(t *testing.T) {
 			name: "standarization n=2 m=10",
 			fts:  options.Standarization,
 			x:    [][]float64{{1, 2, 3}, {1, 4, 5}, {1, 4, 2}, {1, 4, 6}, {1, 5, 1}, {1, 5, 7}, {1, 7, 3}, {1, 9, 5}, {1, 2, 4}, {1, 8, 4}},
-			want: ScalingResult{
+			want: Result{
 				X: [][]float64{{1, -1.342, -0.577}, {1, -0.447, 0.577}, {1, -0.447, -1.155}, {1, -0.447, 1.155}, {1, 0, -1.732}, {1, 0, 1.732}, {1, 0.894, -0.577}, {1, 1.789, 0.577}, {1, -1.342, 0}, {1, 1.342, 0}},
 				U: []float64{5, 4},
 				S: []float64{2.236, 1.732},
@@ -86,7 +86,7 @@ func TestScale(t *testing.T) {
 			name: "normalization n=2 m=10",
 			fts:  options.Normalization,
 			x:    [][]float64{{1, 2, 3}, {1, 4, 5}, {1, 4, 2}, {1, 4, 6}, {1, 5, 1}, {1, 5, 7}, {1, 7, 3}, {1, 9, 5}, {1, 2, 4}, {1, 8, 4}},
-			want: ScalingResult{
+			want: Result{
 				X: [][]float64{{1, -0.429, -0.167}, {1, -0.143, 0.167}, {1, -0.143, -0.333}, {1, -0.143, 0.333}, {1, 0, -0.5}, {1, 0, 0.5}, {1, 0.286, -0.167}, {1, 0.571, 0.167}, {1, -0.429, 0}, {1, 0.429, 0}},
 				U: []float64{5, 4},
 				S: []float64{7, 6},
@@ -96,7 +96,7 @@ func TestScale(t *testing.T) {
 			name: "none n=2 m=10",
 			fts:  options.None,
 			x:    [][]float64{{1, 2, 3}, {1, 4, 5}, {1, 4, 2}, {1, 4, 6}, {1, 5, 1}, {1, 5, 7}, {1, 7, 3}, {1, 9, 5}, {1, 2, 4}, {1, 8, 4}},
-			want: ScalingResult{
+			want: Result{
 				X: [][]float64{{1, 2, 3}, {1, 4, 5}, {1, 4, 2}, {1, 4, 6}, {1, 5, 1}, {1, 5, 7}, {1, 7, 3}, {1, 9, 5}, {1, 2, 4}, {1, 8, 4}},
 				U: []float64{0, 0},
 				S: []float64{1, 1},
@@ -109,7 +109,10 @@ func TestScale(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			got := s.Scale(tt.x)
+			got, err := s.Scale(tt.x)
+			if err != nil {
+				t.Fatalf("want nil, got error %v", err)
+			}
 			if !regressiontest.Are2DFloatSlicesEqual(got.X, tt.want.X, 3) {
 				t.Errorf("want %v, got %v", tt.want.X, got.X)
 			}

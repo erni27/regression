@@ -17,7 +17,13 @@ var (
 	ErrUnsupportedConverganceType = errors.New("unsupported convergance type")
 	// ErrUnsupportedScalingTechnique is returned if unsupported features' scaling technique was chosen.
 	ErrUnsupportedScalingTechnique = errors.New("unsupported scaling technique")
-	// ErrInvalidTrainingSet is returned if features vectors included in the set are not consistent.
+	// ErrInvalidDesignMatrix is returned if feature vectors form an invalid design matrix.
+	// Returned if one of the following is true:
+	// 1) The matrix is nil.
+	// 2) The matrix is irregular.
+	// 3) The number of features is greater than the number of training examples.
+	ErrInvalidDesignMatrix = errors.New("invalid design matrix")
+	// ErrInvalidTrainingSet is returned if a design matrix doesn't have the same length as a target vector.
 	ErrInvalidTrainingSet = errors.New("invalid training set")
 	// ErrInvalidFeatureVector is returned if feature vector is invalid.
 	ErrInvalidFeatureVector = errors.New("invalid feature vector")
@@ -55,82 +61,10 @@ func (f RegressionFunc[T]) Run(ctx context.Context, s TrainingSet) (Model[T], er
 	return f(ctx, s)
 }
 
-// TrainingExample represents a single (features, target) example.
-type TrainingExample struct {
-	Features []float64
-	Target   float64
-}
-
-// NewTrainingSet creates a new training set if examples are consistent.
-// If examples are not consistent, returns an error. It doesn't check for correctness of values.
-func NewTrainingSet(exs []TrainingExample) (TrainingSet, error) {
-	if !areExamplesConsistent(exs) {
-		return TrainingSet{}, ErrInvalidTrainingSet
-	}
-	return TrainingSet{examples: exs}, nil
-}
-
-// TrainingSet represents set of traning examples.
+// TrainingSet represents a set of traning examples.
 type TrainingSet struct {
-	examples     []TrainingExample
-	x            [][]float64
-	y            []float64
-	isDummyAdded bool // Indicates if a dummy feature was added to each training example.
-}
-
-// Examples returns all training examples from training set.
-func (s *TrainingSet) Examples() []TrainingExample {
-	return s.examples
-}
-
-// GetTargetVector returns the target vector from the training set.
-func (s *TrainingSet) GetTargetVector() []float64 {
-	if s.y != nil {
-		return s.y
-	}
-	y := make([]float64, len(s.examples))
-	for i, te := range s.examples {
-		y[i] = te.Target
-	}
-	s.y = y
-	return y
-}
-
-// GetDesignMatrix returns the design matrix from the training set.
-func (s *TrainingSet) GetDesignMatrix() [][]float64 {
-	if s.x != nil {
-		return s.x
-	}
-	x := make([][]float64, len(s.examples))
-	for i, te := range s.examples {
-		x[i] = te.Features
-	}
-	s.x = x
-	return x
-}
-
-// AddDummyFeatures puts dummy feature (equals 1) for each training example being a part of the training set.
-func (s *TrainingSet) AddDummyFeatures() {
-	if s.isDummyAdded {
-		return
-	}
-	for i := 0; i < len(s.examples); i++ {
-		s.examples[i].Features = append([]float64{1}, s.examples[i].Features...)
-	}
-	s.isDummyAdded = true
-}
-
-func areExamplesConsistent(exs []TrainingExample) bool {
-	if len(exs) == 0 {
-		return false
-	}
-	// n represents number of features.
-	// This number must be consistent across all features vectors.
-	n := len(exs[0].Features)
-	for i := 1; i < len(exs); i++ {
-		if len(exs[i].Features) != n {
-			return false
-		}
-	}
-	return true
+	// X is a design matrix.
+	X [][]float64
+	// Y is a target vector.
+	Y []float64
 }

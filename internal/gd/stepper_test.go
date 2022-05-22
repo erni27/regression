@@ -110,7 +110,7 @@ func TestTakeStep(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := NewStepper(tt.gdv, hyphothesis, tt.x, tt.y, tt.lr)
+			s, err := NewStepper(tt.gdv, hyphoStub, tt.x, tt.y, tt.lr)
 			if err != nil {
 				t.Fatal(err)
 			}

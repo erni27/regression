@@ -13,7 +13,7 @@ var (
 
 // Inverse performs matrix inversion.
 func Inverse(ctx context.Context, m [][]float64) ([][]float64, error) {
-	if !IsValid(m) {
+	if !IsRegular(m) {
 		return nil, ErrInvalidMatrix
 	}
 	n := len(m)
@@ -115,7 +115,7 @@ func Inverse(ctx context.Context, m [][]float64) ([][]float64, error) {
 
 // Multiply produces matrix product z=xy.
 func Multiply(ctx context.Context, x [][]float64, y [][]float64) ([][]float64, error) {
-	if !IsValid(x) || !IsValid(y) {
+	if !IsRegular(x) || !IsRegular(y) {
 		return nil, ErrInvalidMatrix
 	}
 	m, n, p := len(x), len(y), len(y[0])
@@ -143,7 +143,7 @@ func Multiply(ctx context.Context, x [][]float64, y [][]float64) ([][]float64, e
 
 // MultiplyByVector multiples a given matrix by a given vector.
 func MultiplyByVector(ctx context.Context, x [][]float64, y []float64) ([]float64, error) {
-	if !IsValid(x) {
+	if !IsRegular(x) {
 		return nil, ErrInvalidMatrix
 	}
 	m, n := len(x), len(y)
@@ -166,7 +166,7 @@ func MultiplyByVector(ctx context.Context, x [][]float64, y []float64) ([]float6
 
 // Transpose performs a matrix transposition.
 func Transpose(ctx context.Context, x [][]float64) ([][]float64, error) {
-	if !IsValid(x) {
+	if !IsRegular(x) {
 		return nil, ErrInvalidMatrix
 	}
 	n, m := len(x), len(x[0])
@@ -185,11 +185,14 @@ func Transpose(ctx context.Context, x [][]float64) ([][]float64, error) {
 	return t, nil
 }
 
-// IsValid checks if a 2D slice is a valid matrix.
-func IsValid(x [][]float64) bool {
-	m := len(x[0])
+// IsRegular checks if a 2D slice is a non-nil, regular matrix.
+func IsRegular(x [][]float64) bool {
+	if len(x) == 0 {
+		return false
+	}
+	n := len(x[0])
 	for i := 1; i < len(x); i++ {
-		if len(x[i]) != m {
+		if len(x[i]) != n {
 			return false
 		}
 	}

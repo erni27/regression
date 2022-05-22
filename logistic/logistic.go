@@ -7,6 +7,7 @@ import (
 	"github.com/erni27/regression"
 	"github.com/erni27/regression/internal/gd"
 	"github.com/erni27/regression/internal/long"
+	"github.com/erni27/regression/internal/ts"
 	"github.com/erni27/regression/options"
 )
 
@@ -25,21 +26,23 @@ func WithGradientDescent(o options.Options) regression.Regression[int] {
 // run runs logistic regression for given training set. It uses an numerical approach
 // for computing coefficients (gradient descent).
 func run(ctx context.Context, o options.Options, s regression.TrainingSet) (regression.Model[int], error) {
-	s.AddDummyFeatures()
-	x := s.GetDesignMatrix()
-	y := s.GetTargetVector()
-	gr, err := long.Run(ctx, func() (gd.Result, error) { return gradientDescent.Run(ctx, o, x, y) })
+	if err := ts.Validate(s); err != nil {
+		return nil, err
+	}
+	x := ts.AddDummies(s.X)
+	y := s.Y
+	coeffs, err := long.Run(ctx, func() ([]float64, error) { return gradientDescent.Run(ctx, o, x, y) })
 	if err != nil {
 		return nil, err
 	}
-	acc, err := calcAccuracy(x, y, gr.Coefficients)
+	acc, err := calcAccuracy(x, y, coeffs)
 	if err != nil {
 		return nil, err
 	}
-	return model{coeffs: gr.Coefficients, acc: acc}, nil
+	return model{coeffs: coeffs, acc: acc}, nil
 }
 
-// hyphothesis calculates the hyphothesis function for the logistic regression model.
+// hyphothesis calculates a hyphothesis function value for the logistic regression model.
 //
 // The hyphothesis equals h(x)=g(OX), where g(z) is a sigmoid function equals g(z)=1/(1-e^(-z))
 // and O stands for a coefficients vector and X is a feature vector.
@@ -54,7 +57,7 @@ func hyphothesis(x []float64, coeffs []float64) (float64, error) {
 	return 1 / (1 + math.Exp(-z)), nil
 }
 
-// cost calculates cost function value for logistic regression.
+// cost calculates a cost function value for the logistic regression.
 func cost(x [][]float64, y []float64, coeffs []float64) (float64, error) {
 	m := len(x)
 	var c float64

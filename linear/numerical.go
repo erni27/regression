@@ -6,6 +6,7 @@ import (
 	"github.com/erni27/regression"
 	"github.com/erni27/regression/internal/gd"
 	"github.com/erni27/regression/internal/long"
+	"github.com/erni27/regression/internal/ts"
 	"github.com/erni27/regression/options"
 )
 
@@ -24,16 +25,18 @@ func WithGradientDescent(o options.Options) regression.Regression[float64] {
 // numerical runs linear regression for given training set. It uses an numerical approach
 // for computing coefficients (gradient descent).
 func numerical(ctx context.Context, o options.Options, s regression.TrainingSet) (regression.Model[float64], error) {
-	s.AddDummyFeatures()
-	x := s.GetDesignMatrix()
-	y := s.GetTargetVector()
-	gr, err := long.Run(ctx, func() (gd.Result, error) { return gradientDescent.Run(ctx, o, x, y) })
+	if err := ts.Validate(s); err != nil {
+		return nil, err
+	}
+	x := ts.AddDummies(s.X)
+	y := s.Y
+	coeffs, err := long.Run(ctx, func() ([]float64, error) { return gradientDescent.Run(ctx, o, x, y) })
 	if err != nil {
 		return nil, err
 	}
-	r2, err := calcR2(x, y, gr.Coefficients)
+	r2, err := calcR2(x, y, coeffs)
 	if err != nil {
 		return nil, err
 	}
-	return model{coeffs: gr.Coefficients, r2: r2}, nil
+	return model{coeffs: coeffs, r2: r2}, nil
 }

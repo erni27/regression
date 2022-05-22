@@ -19,37 +19,20 @@ type GradientDescent struct {
 	c CostFunc
 }
 
-// Result is a gradient descent result.
-// It holds calculated coefficients and scaling parameters.
-type Result struct {
-	Coefficients  []float64
-	ScalingResult ScalingResult
-}
-
 // New creates new gradient descent.
 func New(h Hyphothesis, c CostFunc) GradientDescent {
 	return GradientDescent{h, c}
 }
 
 // Run runs the gradient descent algorithm.
-func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float64, y []float64) (Result, error) {
-	scaler, err := NewScaler(o.FeatureScalingTechnique())
-	if err != nil {
-		return Result{}, err
-	}
-	sr := scaler.Scale(x)
-	x = sr.X
+func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float64, y []float64) ([]float64, error) {
 	gds, err := NewStepper(o.GradientDescentVariant(), g.h, x, y, o.LearningRate())
 	if err != nil {
-		return Result{}, err
+		return nil, err
 	}
 	cv, err := NewConverger(o.ConverganceType(), o.ConverganceIndicator(), g.c)
 	if err != nil {
-		return Result{}, err
+		return nil, err
 	}
-	coeffs, err := cv.Converge(ctx, gds)
-	if err != nil {
-		return Result{}, err
-	}
-	return Result{Coefficients: coeffs, ScalingResult: sr}, nil
+	return cv.Converge(ctx, gds)
 }
