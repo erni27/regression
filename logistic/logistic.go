@@ -7,7 +7,7 @@ import (
 	"github.com/erni27/regression"
 	"github.com/erni27/regression/internal/gd"
 	"github.com/erni27/regression/internal/long"
-	"github.com/erni27/regression/internal/ts"
+	"github.com/erni27/regression/internal/matrix"
 	"github.com/erni27/regression/options"
 )
 
@@ -26,10 +26,10 @@ func WithGradientDescent(o options.Options) regression.Regression[int] {
 // run runs logistic regression for given training set. It uses an numerical approach
 // for computing coefficients (gradient descent).
 func run(ctx context.Context, o options.Options, s regression.TrainingSet) (regression.Model[int], error) {
-	if err := ts.Validate(s); err != nil {
-		return nil, err
+	if !matrix.IsRegular(s.X) || len(s.X) != len(s.Y) || len(s.X) < len(s.X[0]) {
+		return nil, regression.ErrInvalidTrainingSet
 	}
-	x := ts.AddDummies(s.X)
+	x := matrix.AddDummies(s.X)
 	y := s.Y
 	coeffs, err := long.Run(ctx, func() ([]float64, error) { return gradientDescent.Run(ctx, o, x, y) })
 	if err != nil {

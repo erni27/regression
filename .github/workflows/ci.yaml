@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Test
-        run: go test -race -v ./...
+        run: go test -race -v `go list ./... | grep --invert-match regressiontest`
   lint:
     name: Lint
     runs-on: ubuntu-latest

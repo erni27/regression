@@ -17,13 +17,7 @@ var (
 	ErrUnsupportedConverganceType = errors.New("unsupported convergance type")
 	// ErrUnsupportedScalingTechnique is returned if unsupported features' scaling technique was chosen.
 	ErrUnsupportedScalingTechnique = errors.New("unsupported scaling technique")
-	// ErrInvalidDesignMatrix is returned if feature vectors form an invalid design matrix.
-	// Returned if one of the following is true:
-	// 1) The matrix is nil.
-	// 2) The matrix is irregular.
-	// 3) The number of features is greater than the number of training examples.
-	ErrInvalidDesignMatrix = errors.New("invalid design matrix")
-	// ErrInvalidTrainingSet is returned if a design matrix doesn't have the same length as a target vector.
+	// ErrInvalidTrainingSet is returned if a design matrix is invalid or doesn't have the same length as a target vector.
 	ErrInvalidTrainingSet = errors.New("invalid training set")
 	// ErrInvalidFeatureVector is returned if feature vector is invalid.
 	ErrInvalidFeatureVector = errors.New("invalid feature vector")

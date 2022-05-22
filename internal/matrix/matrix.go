@@ -1,3 +1,4 @@
+// Package matrix contains the implementation of matrix calculus related to the regression algorithms.
 package matrix
 
 import (
@@ -8,13 +9,13 @@ import (
 var (
 	ErrNonInvertibleMatrix = errors.New("matrix is not invertible")
 	ErrOperationNotAllowed = errors.New("operation not allowed")
-	ErrInvalidMatrix       = errors.New("invalid matrix")
+	ErrIrregularMatrix     = errors.New("irregular matrix")
 )
 
 // Inverse performs matrix inversion.
 func Inverse(ctx context.Context, m [][]float64) ([][]float64, error) {
 	if !IsRegular(m) {
-		return nil, ErrInvalidMatrix
+		return nil, ErrIrregularMatrix
 	}
 	n := len(m)
 	if n != len(m[0]) {
@@ -116,7 +117,7 @@ func Inverse(ctx context.Context, m [][]float64) ([][]float64, error) {
 // Multiply produces matrix product z=xy.
 func Multiply(ctx context.Context, x [][]float64, y [][]float64) ([][]float64, error) {
 	if !IsRegular(x) || !IsRegular(y) {
-		return nil, ErrInvalidMatrix
+		return nil, ErrIrregularMatrix
 	}
 	m, n, p := len(x), len(y), len(y[0])
 	// The numbers of rows in x matrix must be equal to the number of columns in y matrix.
@@ -144,7 +145,7 @@ func Multiply(ctx context.Context, x [][]float64, y [][]float64) ([][]float64, e
 // MultiplyByVector multiples a given matrix by a given vector.
 func MultiplyByVector(ctx context.Context, x [][]float64, y []float64) ([]float64, error) {
 	if !IsRegular(x) {
-		return nil, ErrInvalidMatrix
+		return nil, ErrIrregularMatrix
 	}
 	m, n := len(x), len(y)
 	if n != len(x[0]) {
@@ -167,7 +168,7 @@ func MultiplyByVector(ctx context.Context, x [][]float64, y []float64) ([]float6
 // Transpose performs a matrix transposition.
 func Transpose(ctx context.Context, x [][]float64) ([][]float64, error) {
 	if !IsRegular(x) {
-		return nil, ErrInvalidMatrix
+		return nil, ErrIrregularMatrix
 	}
 	n, m := len(x), len(x[0])
 	t := make([][]float64, m)
@@ -187,14 +188,29 @@ func Transpose(ctx context.Context, x [][]float64) ([][]float64, error) {
 
 // IsRegular checks if a 2D slice is a non-nil, regular matrix.
 func IsRegular(x [][]float64) bool {
-	if len(x) == 0 {
+	m := len(x)
+	if m == 0 {
 		return false
 	}
 	n := len(x[0])
-	for i := 1; i < len(x); i++ {
+	for i := 1; i < m; i++ {
 		if len(x[i]) != n {
 			return false
 		}
 	}
 	return true
+}
+
+// AddDummy adds a dummy feature equals 1 at the beginning of a feature vector.
+func AddDummy(x []float64) []float64 {
+	return append([]float64{1}, x...)
+}
+
+// AddDummies adds a dummy feature equals 1 at the beginning of each feature vector
+// being a part of a design matrix.
+func AddDummies(x [][]float64) [][]float64 {
+	for i := 0; i < len(x); i++ {
+		x[i] = AddDummy(x[i])
+	}
+	return x
 }
