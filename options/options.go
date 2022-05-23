@@ -1,5 +1,14 @@
-// Package options defines training options for specific regression variants.
+// Package options contains implementation of types and constants related to the regression options.
 package options
+
+// FeatureScalingTechnique identifies a feature scaling technique.
+type FeatureScalingTechnique int
+
+const (
+	None FeatureScalingTechnique = iota
+	Normalization
+	Standarization
+)
 
 // ConverganceType identifies a convergance type.
 type ConverganceType int
@@ -17,7 +26,7 @@ const (
 	Stochastic
 )
 
-// Options contains training options for a iterative regression algorithm.
+// Options contains training options for an iterative regression algorithm.
 type Options struct {
 	lr  float64
 	gdv GradientDescentVariant

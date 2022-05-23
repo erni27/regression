@@ -58,26 +58,23 @@ func LoadTrainingSet(path string) (regression.TrainingSet, error) {
 	if err != nil {
 		return regression.TrainingSet{}, err
 	}
-	exs := make([]regression.TrainingExample, len(data))
+	m := len(data)
+	x := make([][]float64, m)
+	y := make([]float64, m)
 	for j, l := range data {
-		e := regression.TrainingExample{Features: make([]float64, len(l)-1)}
+		x[j] = make([]float64, len(l)-1)
 		for i, f := range l[:len(l)-1] {
 			f, err := strconv.ParseFloat(f, 64)
 			if err != nil {
 				return regression.TrainingSet{}, err
 			}
-			e.Features[i] = f
+			x[j][i] = f
 		}
 		f, err := strconv.ParseFloat(l[len(l)-1], 64)
 		if err != nil {
 			return regression.TrainingSet{}, err
 		}
-		e.Target = f
-		exs[j] = e
+		y[j] = f
 	}
-	s, err := regression.NewTrainingSet(exs)
-	if err != nil {
-		return regression.TrainingSet{}, err
-	}
-	return s, nil
+	return regression.TrainingSet{X: x, Y: y}, nil
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/erni27/regression/options"
 )
 
-func hyphothesis(x []float64, coeffs []float64) (float64, error) {
+func hyphoStub(x []float64, coeffs []float64) (float64, error) {
 	if len(x) != len(coeffs) {
 		return 0, errors.New("invalid arguments")
 	}
@@ -23,11 +23,11 @@ func hyphothesis(x []float64, coeffs []float64) (float64, error) {
 	return r, nil
 }
 
-func cost(x [][]float64, y []float64, coeffs []float64) (float64, error) {
+func costStub(x [][]float64, y []float64, coeffs []float64) (float64, error) {
 	m := len(x)
 	var c float64
 	for i := 0; i < m; i++ {
-		hr, err := hyphothesis(x[i], coeffs)
+		hr, err := hyphoStub(x[i], coeffs)
 		if err != nil {
 			return 0, err
 		}
@@ -36,7 +36,7 @@ func cost(x [][]float64, y []float64, coeffs []float64) (float64, error) {
 	return c / float64((2 * m)), nil
 }
 
-var gradientDescent GradientDescent = New(hyphothesis, cost)
+var gd GradientDescent = New(hyphoStub, costStub)
 
 func TestRun(t *testing.T) {
 	x := [][]float64{
@@ -74,7 +74,7 @@ func TestRun(t *testing.T) {
 	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := gradientDescent.Run(ctx, tt.opt, x, y)
+			got, err := gd.Run(ctx, tt.opt, x, y)
 			if err != nil {
 				t.Fatalf("want nil, got error %v", err)
 			}
@@ -116,7 +116,7 @@ func TestRun_TooLargeLearningRate(t *testing.T) {
 	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := gradientDescent.Run(ctx, tt.opt, x, y)
+			got, err := gd.Run(ctx, tt.opt, x, y)
 			fmt.Print(got)
 			if err != regression.ErrCannotConverge {
 				t.Fatalf("want %v, got %v", regression.ErrCannotConverge, err)
