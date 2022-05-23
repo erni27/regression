@@ -6,6 +6,7 @@ import (
 	"github.com/erni27/regression"
 	"github.com/erni27/regression/internal/long"
 	"github.com/erni27/regression/internal/matrix"
+	"github.com/erni27/regression/internal/ts"
 )
 
 // WithNormalEquation initializes linear regression with analytical approach.
@@ -18,10 +19,10 @@ func WithNormalEquation() regression.Regression[float64] {
 // analytical runs linear regression for given training set. It uses an analytical approach
 // for computing coefficients (normal equation).
 func analytical(ctx context.Context, s regression.TrainingSet) (regression.Model[float64], error) {
-	if !matrix.IsRegular(s.X) || len(s.X) != len(s.Y) {
-		return nil, regression.ErrInvalidTrainingSet
+	if err := ts.Validate(s); err != nil {
+		return nil, err
 	}
-	x := matrix.AddDummies(s.X)
+	x := ts.AddDummies(s.X)
 	y := s.Y
 	coeffs, err := solveNormalEquation(ctx, x, y)
 	if err != nil {
