@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestWithAutomaticConvergance(t *testing.T) {
+func TestWithAutomaticConvergence(t *testing.T) {
 	tests := []struct {
 		name string
 		lr   float64
@@ -16,24 +16,24 @@ func TestWithAutomaticConvergance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			o := WithAutomaticConvergance(tt.lr, tt.gdv, tt.t)
+			o := WithAutomaticConvergence(tt.lr, tt.gdv, tt.t)
 			if lr := o.LearningRate(); lr != tt.lr {
 				t.Errorf("want %f, got %f", tt.lr, lr)
 			}
 			if gdv := o.GradientDescentVariant(); gdv != tt.gdv {
 				t.Errorf("want %d, got %d", tt.gdv, gdv)
 			}
-			if ct := o.ConverganceType(); ct != Automatic {
+			if ct := o.ConvergenceType(); ct != Automatic {
 				t.Errorf("want %d, got %d", Automatic, ct)
 			}
-			if ci := o.ConverganceIndicator(); ci != tt.t {
+			if ci := o.ConvergenceIndicator(); ci != tt.t {
 				t.Errorf("want %f, got %f", tt.t, ci)
 			}
 		})
 	}
 }
 
-func TestWithIterativeConvergance(t *testing.T) {
+func TestWithIterativeConvergence(t *testing.T) {
 	tests := []struct {
 		name string
 		lr   float64
@@ -45,17 +45,17 @@ func TestWithIterativeConvergance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			o := WithIterativeConvergance(tt.lr, tt.gdv, tt.i)
+			o := WithIterativeConvergence(tt.lr, tt.gdv, tt.i)
 			if lr := o.LearningRate(); lr != tt.lr {
 				t.Errorf("want %f, got %f", tt.lr, lr)
 			}
 			if gdv := o.GradientDescentVariant(); gdv != tt.gdv {
 				t.Errorf("want %d, got %d", tt.gdv, gdv)
 			}
-			if ct := o.ConverganceType(); ct != Iterative {
+			if ct := o.ConvergenceType(); ct != Iterative {
 				t.Errorf("want %d, got %d", Iterative, ct)
 			}
-			if ci := o.ConverganceIndicator(); uint(ci) != tt.i {
+			if ci := o.ConvergenceIndicator(); uint(ci) != tt.i {
 				t.Errorf("want %d, got %f", tt.i, ci)
 			}
 		})

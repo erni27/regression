@@ -22,13 +22,13 @@ func (s stepperMock) TakeStep() error {
 func TestNewConverger(t *testing.T) {
 	tests := []struct {
 		name    string
-		ct      options.ConverganceType
+		ct      options.ConvergenceType
 		wantErr bool
 		err     error
 	}{
 		{name: "iterative", ct: options.Iterative, wantErr: false},
 		{name: "automatic", ct: options.Automatic, wantErr: false},
-		{name: "unsupported", ct: 0, wantErr: true, err: regression.ErrUnsupportedConverganceType},
+		{name: "unsupported", ct: 0, wantErr: true, err: regression.ErrUnsupportedConvergenceType},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -70,7 +70,7 @@ func TestConverge_Iterative(t *testing.T) {
 				t.Fatalf("want nil, got error %v", err)
 			}
 			if tt.i != counter {
-				t.Fatalf("want convergance after %d, but got convergance after %d", tt.i, counter)
+				t.Fatalf("want convergence after %d, but got convergence after %d", tt.i, counter)
 			}
 		})
 	}
@@ -108,7 +108,7 @@ func TestConverge_Automatic(t *testing.T) {
 				t.Fatalf("want nil, got error %v", err)
 			}
 			if counter != tt.i {
-				t.Fatalf("want convergance after %d, but got convergance after %d", tt.i, counter)
+				t.Fatalf("want convergence after %d, but got convergence after %d", tt.i, counter)
 			}
 		})
 	}
@@ -117,11 +117,11 @@ func TestConverge_Automatic(t *testing.T) {
 func TestConverge_StepperErr(t *testing.T) {
 	tests := []struct {
 		name string
-		ct   options.ConverganceType
+		ct   options.ConvergenceType
 		err  error
 	}{
-		{name: "iterative convergance", ct: options.Iterative, err: errors.New("error while trying to converge iteratively")},
-		{name: "automatic convergance", ct: options.Automatic, err: errors.New("error while trying to converge automatically")},
+		{name: "iterative convergence", ct: options.Iterative, err: errors.New("error while trying to converge iteratively")},
+		{name: "automatic convergence", ct: options.Automatic, err: errors.New("error while trying to converge automatically")},
 	}
 	ctx := context.Background()
 	for _, tt := range tests {

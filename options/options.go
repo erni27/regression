@@ -10,11 +10,11 @@ const (
 	Standarization
 )
 
-// ConverganceType identifies a convergance type.
-type ConverganceType int
+// ConvergenceType identifies a convergence type.
+type ConvergenceType int
 
 const (
-	Iterative ConverganceType = iota + 1
+	Iterative ConvergenceType = iota + 1
 	Automatic
 )
 
@@ -30,8 +30,8 @@ const (
 type Options struct {
 	lr  float64
 	gdv GradientDescentVariant
-	ct  ConverganceType
-	// ci is a convergance indicator. Its interpretation depends on a convergance type.
+	ct  ConvergenceType
+	// ci is a convergence indicator. Its interpretation depends on a convergence type.
 	ci float64
 }
 
@@ -45,22 +45,22 @@ func (opt Options) GradientDescentVariant() GradientDescentVariant {
 	return opt.gdv
 }
 
-// ConverganceType returns a convergance type.
-func (opt Options) ConverganceType() ConverganceType {
+// ConvergenceType returns a convergence type.
+func (opt Options) ConvergenceType() ConvergenceType {
 	return opt.ct
 }
 
-// ConverganceIndicator returns a convergance indicator.
-func (opt Options) ConverganceIndicator() float64 {
+// ConvergenceIndicator returns a convergence indicator.
+func (opt Options) ConvergenceIndicator() float64 {
 	return opt.ci
 }
 
-// WithIterativeConvergance returns new Options with an iterative convergance indicator.
-func WithIterativeConvergance(lr float64, gdv GradientDescentVariant, i uint) Options {
+// WithIterativeConvergence returns new Options with an iterative convergence indicator.
+func WithIterativeConvergence(lr float64, gdv GradientDescentVariant, i uint) Options {
 	return Options{lr: lr, gdv: gdv, ct: Iterative, ci: float64(i)}
 }
 
-// WithAutomaticConvergance returns new Options with an automatic convergance indicator.
-func WithAutomaticConvergance(lr float64, gdv GradientDescentVariant, t float64) Options {
+// WithAutomaticConvergence returns new Options with an automatic convergence indicator.
+func WithAutomaticConvergence(lr float64, gdv GradientDescentVariant, t float64) Options {
 	return Options{lr: lr, gdv: gdv, ct: Automatic, ci: t}
 }

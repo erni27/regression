@@ -30,7 +30,7 @@ func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float
 	if err != nil {
 		return nil, err
 	}
-	cv, err := NewConverger(o.ConverganceType(), o.ConverganceIndicator(), g.c)
+	cv, err := NewConverger(o.ConvergenceType(), o.ConvergenceIndicator(), g.c)
 	if err != nil {
 		return nil, err
 	}

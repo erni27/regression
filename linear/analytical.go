@@ -37,7 +37,7 @@ func analytical(ctx context.Context, s regression.TrainingSet) (regression.Model
 
 // solveNormalEquation solves the normal equation for given design matrix and target vector.
 //
-// The normal equation minimizes the cost function for linear regression (LMS) by explicity taking its derivatives
+// The normal equation minimizes the cost function for linear regression (LMS) by explicitly taking its derivatives
 // with respect to the coefficients and setting them to zero.
 func solveNormalEquation(ctx context.Context, x [][]float64, y []float64) ([]float64, error) {
 	xt, err := matrix.Transpose(ctx, x)

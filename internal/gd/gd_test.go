@@ -52,22 +52,22 @@ func TestRun(t *testing.T) {
 	}{
 		{
 			name: "batch iterative alpha=0.01 i=10",
-			opt:  options.WithIterativeConvergance(0.01, options.Batch, 10),
+			opt:  options.WithIterativeConvergence(0.01, options.Batch, 10),
 			want: []float64{0.874, 1.1},
 		},
 		{
 			name: "batch automatic alpha=0.01 t=0.01",
-			opt:  options.WithAutomaticConvergance(0.01, options.Batch, 0.01),
+			opt:  options.WithAutomaticConvergence(0.01, options.Batch, 0.01),
 			want: []float64{0.872, 1.101},
 		},
 		{
 			name: "stochastic iterative alpha=0.01 i=10000",
-			opt:  options.WithIterativeConvergance(0.01, options.Stochastic, 10000),
+			opt:  options.WithIterativeConvergence(0.01, options.Stochastic, 10000),
 			want: []float64{1, 1},
 		},
 		{
 			name: "stochastic automatic alpha=0.01 t=0.01",
-			opt:  options.WithAutomaticConvergance(0.01, options.Stochastic, 0.01),
+			opt:  options.WithAutomaticConvergence(0.01, options.Stochastic, 0.01),
 			want: []float64{0.867, 1.105},
 		},
 	}
@@ -98,19 +98,19 @@ func TestRun_TooLargeLearningRate(t *testing.T) {
 	}{
 		{
 			name: "batch iterative alpha=0.01 i=100",
-			opt:  options.WithIterativeConvergance(0.01, options.Batch, 100),
+			opt:  options.WithIterativeConvergence(0.01, options.Batch, 100),
 		},
 		{
 			name: "batch automatic alpha=0.6 t=0.001",
-			opt:  options.WithAutomaticConvergance(0.6, options.Batch, 0.001),
+			opt:  options.WithAutomaticConvergence(0.6, options.Batch, 0.001),
 		},
 		{
 			name: "stochastic iterative alpha=0.2 i=100000",
-			opt:  options.WithIterativeConvergance(0.2, options.Stochastic, 100000),
+			opt:  options.WithIterativeConvergence(0.2, options.Stochastic, 100000),
 		},
 		{
 			name: "stochastic automatic alpha=0.1 t=0.01",
-			opt:  options.WithAutomaticConvergance(0.1, options.Stochastic, 0.01),
+			opt:  options.WithAutomaticConvergence(0.1, options.Stochastic, 0.01),
 		},
 	}
 	ctx := context.Background()
