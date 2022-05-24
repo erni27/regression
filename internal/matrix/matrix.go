@@ -200,4 +200,3 @@ func IsRegular(x [][]float64) bool {
 	}
 	return true
 }
-
