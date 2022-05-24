@@ -20,7 +20,7 @@ func (f ConvergerFunc) Converge(ctx context.Context, s Stepper) ([]float64, erro
 }
 
 // NewConverger returns a new converger. If unsupported ConvergenceType is passed, an error is returned.
-func NewConverger(ct options.ConverganceType, ci float64, c CostFunc) (Converger, error) {
+func NewConverger(ct options.ConvergenceType, ci float64, c CostFunc) (Converger, error) {
 	var cf ConvergerFunc
 	switch ct {
 	case options.Iterative:
@@ -32,12 +32,12 @@ func NewConverger(ct options.ConverganceType, ci float64, c CostFunc) (Converger
 			return convergeAutomatically(ctx, s, c, ci)
 		}
 	default:
-		return nil, regression.ErrUnsupportedConverganceType
+		return nil, regression.ErrUnsupportedConvergenceType
 	}
 	return cf, nil
 }
 
-// convergeAfter runs gradient descent with iterative convergance.
+// convergeAfter runs gradient descent with iterative convergence.
 // It converges after i iterations.
 func convergeAfter(ctx context.Context, s Stepper, i int) ([]float64, error) {
 	for k := 0; k < i; k++ {
@@ -54,7 +54,7 @@ func convergeAfter(ctx context.Context, s Stepper, i int) ([]float64, error) {
 	return s.CurrentCoefficients(), nil
 }
 
-// convergeAutomatically runs gradient descent with automatic convergance.
+// convergeAutomatically runs gradient descent with automatic convergence.
 // It converges if cost function decreases by lower value than t threshold.
 func convergeAutomatically(ctx context.Context, s Stepper, c CostFunc, t float64) ([]float64, error) {
 	var coeffs []float64

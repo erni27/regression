@@ -13,8 +13,8 @@ var (
 	ErrCannotConverge = errors.New("cannot converge")
 	// ErrUnsupportedGradientDescentVariant is returned if unsupported gradient descent variant was chosen.
 	ErrUnsupportedGradientDescentVariant = errors.New("unsupported gradient descent variant")
-	// ErrUnsupportedConverganceType is returned if unsupported convergance type was chosen.
-	ErrUnsupportedConverganceType = errors.New("unsupported convergance type")
+	// ErrUnsupportedConvergenceType is returned if unsupported convergence type was chosen.
+	ErrUnsupportedConvergenceType = errors.New("unsupported convergence type")
 	// ErrUnsupportedScalingTechnique is returned if unsupported features' scaling technique was chosen.
 	ErrUnsupportedScalingTechnique = errors.New("unsupported scaling technique")
 	// ErrInvalidTrainingSet is returned if a design matrix is invalid or doesn't have the same length as a target vector.
@@ -24,7 +24,7 @@ var (
 )
 
 // TargetType is a constraint that permits two types (float64 or integer) for target value.
-// Floating point numbers are used for continous value of y, while integer corresponds to the
+// Floating point numbers are used for continuous value of y, while integer corresponds to the
 // discrete one.
 type TargetType interface {
 	~float64 | ~int
@@ -43,7 +43,7 @@ type Model[T TargetType] interface {
 // A Regression is a regression runner. It provides an abstraction for model training.
 type Regression[T TargetType] interface {
 	// Run runs regression against input training set.
-	// It returns trained Model if succeded, otherwise returns an error.
+	// It returns trained Model if succeeded, otherwise returns an error.
 	Run(context.Context, TrainingSet) (Model[T], error)
 }
 
