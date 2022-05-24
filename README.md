@@ -1,6 +1,6 @@
 # regression
 
-[![GitHub Workflow Status]https://img.shields.io/github/workflow/status/erni27/regression/CI?style=flat-square)](https://github.com/erni27/regression/actions?query=workflow%3ACI
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/erni27/regression/CI?style=flat-square)](https://github.com/erni27/regression/actions?query=workflow%3ACI)
 [![Go Report Card](https://goreportcard.com/badge/github.com/erni27/regression?style=flat-square)](https://goreportcard.com/report/github.com/erni27/regression)
 ![Go Version](https://img.shields.io/badge/go%20version-%3E=1.18-61CFDD.svg?style=flat-square)
 
