@@ -24,8 +24,8 @@ func AddDummies(x [][]float64) [][]float64 {
 
 // Validate validates a training set.
 //
-// A training set is valid if a design matrix is valid and a target vector has the same length
-// as the design matrix.
+// A training set is valid if a design matrix is valid and a target vector length
+// equals a number of rows of the design matrix.
 func Validate(s regression.TrainingSet) error {
 	if !matrix.IsRegular(s.X) || len(s.X) <= len(s.X[0]) {
 		return regression.ErrInvalidTrainingSet

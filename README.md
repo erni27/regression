@@ -19,7 +19,7 @@ go get github.com/erni27/regression
 
 ## Why?
 
-Does the world need another not fancy machine learning library? Actually, no. The main puropose of `regression` library is learning. Machine learning and AI algorithms remains mystified and magic. So here it is a simple, written from scratch implementation of one of the most popular algorithms solving regression and classification problem. It doesn't throw the responsibility for underyling math (like matrix calculus and iterative optimisation) to the external packages. Everything is embedded in this repository.
+Does the world need another not fancy machine learning library? Actually, no. The main puropose of `regression` library is learning. Machine learning and AI algorithms remains mystified and magic. So here it is, a simple, written from scratch implementation of one of the most popular algorithms solving regression and classification problem. It doesn't throw the responsibility for underyling math (like matrix calculus and iterative optimisation) to the external packages. Everything is embedded in this repository.
 
 ## Linear regression
 
@@ -143,7 +143,7 @@ With the normal equation, there is no need to choose alpha but it can be slow fo
 
 ## Logistic regression
 
-`regression/logistic`, unlike `regression/linear`, provides only an iterative approach for computing the logistic regression coefficients. It uses known from linear regression gradient descent algorithm. So everything regarding gradient descent from the previous section applies here either.
+`regression/logistic`, unlike `regression/linear`, provides only an iterative approach for computing the logistic regression coefficients. It uses exactly the same algorithm like the linear regression -  gradient descent. So everything regarding gradient descent from the previous section applies here either.
 
 ```golang
 // Creates regression options with:
@@ -194,3 +194,48 @@ The preceding code:
 * Prepare `TrainingSet`.
 * Run logistic regression.
 * Predict a value for a new vector.
+
+Be careful when using an automatic convergance with logistic regression. Without a feature scaling it often cannot converge and computes forever (can be stopped via `Context`).
+
+## Feature scaling
+
+Gradient descent can be much faster when a design matrix consist of features approximately within the same range.
+
+`regression/scaling` package contains implementation of two feature scaling techniques:
+* Mean normalization
+* Standarization 
+
+The following code presents a feature scaling with a normalization as a feature scaling technique.
+```golang
+x := [][]float64{
+    {2104, 3},
+    {1600, 3},
+    {2400, 3},
+    {1416, 2},
+    {3000, 4},
+    {1985, 4},
+    {1534, 3},
+    {1427, 3},
+    {1380, 3},
+    {1494, 3},
+}
+rs, err := scaling.ScaleDesignMatrix(scaling.Normalization, x)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println(rs.X)
+fmt.Println(rs.Parameters)
+```
+
+`scaling.ScaleDesignMatrix` returns a `Result` struct which contains a scaled matrix `X` and scaling parameters `Parameters`.
+
+Scaling parameters are crucial for further predictions. Since the computed coefficients correspond to the scaled dataset, an input vector passed to trained model's `Predict` method must be scaled. Scaling a single feature vector can be done via `scaling.Scale` method.
+
+```golang
+in := []float64{2550, 4}
+in, err = scaling.Scale(in, rs.Parameters)
+if err != nil {
+    log.Fatal(err)
+}
+p, err := m.Predict(in)
+```

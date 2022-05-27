@@ -26,11 +26,11 @@ func New(h Hyphothesis, c CostFunc) GradientDescent {
 
 // Run runs the gradient descent algorithm.
 func (g GradientDescent) Run(ctx context.Context, o options.Options, x [][]float64, y []float64) ([]float64, error) {
-	gds, err := NewStepper(o.GradientDescentVariant(), g.h, x, y, o.LearningRate())
+	gds, err := NewStepper(o.GradientDescentVariant, g.h, x, y, o.LearningRate)
 	if err != nil {
 		return nil, err
 	}
-	cv, err := NewConverger(o.ConvergenceType(), o.ConvergenceIndicator(), g.c)
+	cv, err := NewConverger(o.ConvergenceType, o.ConvergenceIndicator, g.c)
 	if err != nil {
 		return nil, err
 	}
