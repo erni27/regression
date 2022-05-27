@@ -205,3 +205,37 @@ Gradient descent can be much faster when a design matrix consist of features app
 * Mean normalization
 * Standarization 
 
+The following code presents a feature scaling with a normalization as a feature scaling technique.
+```golang
+x := [][]float64{
+    {2104, 3},
+    {1600, 3},
+    {2400, 3},
+    {1416, 2},
+    {3000, 4},
+    {1985, 4},
+    {1534, 3},
+    {1427, 3},
+    {1380, 3},
+    {1494, 3},
+}
+rs, err := scaling.ScaleDesignMatrix(scaling.Normalization, x)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println(rs.X)
+fmt.Println(rs.Parameters)
+```
+
+`scaling.ScaleDesignMatrix` returns a `Result` struct which contains a scaled matrix `X` and scaling parameters `Parameters`.
+
+Scaling parameters are crucial for further predictions. Since the computed coefficients correspond to the scaled dataset, an input vector passed to trained model's `Predict` method must be scaled. Scaling a single feature vector can be done via `scaling.Scale` method.
+
+```golang
+in := []float64{2550, 4}
+in, err = scaling.Scale(in, rs.Parameters)
+if err != nil {
+    log.Fatal(err)
+}
+p, err := m.Predict(in)
+```
