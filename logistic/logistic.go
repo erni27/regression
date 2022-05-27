@@ -1,3 +1,4 @@
+// Package logistic provides linear regression model implementation.
 package logistic
 
 import (

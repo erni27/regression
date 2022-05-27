@@ -8,19 +8,18 @@ import (
 )
 
 var (
-	// ErrCannotConverge is returned if gradient descent cannot converge.
-	// It usually means that the learning rate is too large.
+	// ErrCannotConverge is returned if gradient descent cannot converge. It usually means that the learning rate is too large.
 	ErrCannotConverge = errors.New("cannot converge")
 	// ErrUnsupportedGradientDescentVariant is returned if unsupported gradient descent variant was chosen.
 	ErrUnsupportedGradientDescentVariant = errors.New("unsupported gradient descent variant")
 	// ErrUnsupportedConvergenceType is returned if unsupported convergence type was chosen.
 	ErrUnsupportedConvergenceType = errors.New("unsupported convergence type")
-	// ErrUnsupportedScalingTechnique is returned if unsupported features' scaling technique was chosen.
-	ErrUnsupportedScalingTechnique = errors.New("unsupported scaling technique")
 	// ErrInvalidTrainingSet is returned if a design matrix is invalid or doesn't have the same length as a target vector.
 	ErrInvalidTrainingSet = errors.New("invalid training set")
 	// ErrInvalidFeatureVector is returned if feature vector is invalid.
 	ErrInvalidFeatureVector = errors.New("invalid feature vector")
+	// ErrInvalidDesignMatrix is returned if a design matrix is invalid in a given context.
+	ErrInvalidDesignMatrix = errors.New("invalid design matrix")
 )
 
 // TargetType is a constraint that permits two types (float64 or integer) for target value.
