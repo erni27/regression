@@ -196,7 +196,7 @@ func TestScale(t *testing.T) {
 		want []float64
 	}{
 		{
-			name: "nil vector parameteres and nil feature vector",
+			name: "nil vector parameters and nil feature vector",
 		},
 		{
 			name: "n=1",
