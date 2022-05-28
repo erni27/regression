@@ -16,10 +16,12 @@ func AddDummy(x []float64) []float64 {
 // AddDummies adds a dummy feature equals 1 at the beginning of each feature vector
 // being a part of a design matrix.
 func AddDummies(x [][]float64) [][]float64 {
+	d := make([][]float64, len(x))
+	copy(d, x)
 	for i := 0; i < len(x); i++ {
-		x[i] = AddDummy(x[i])
+		d[i] = AddDummy(d[i])
 	}
-	return x
+	return d
 }
 
 // Validate validates a training set.

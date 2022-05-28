@@ -21,7 +21,9 @@ func (m model) Predict(x []float64) (int, error) {
 }
 
 func (m model) Coefficients() []float64 {
-	return m.coeffs
+	coeffs := make([]float64, len(m.coeffs))
+	copy(coeffs, m.coeffs)
+	return coeffs
 }
 
 func (m model) Accuracy() float64 {

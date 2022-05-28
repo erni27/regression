@@ -5,6 +5,7 @@ import (
 
 	"github.com/erni27/regression"
 	"github.com/erni27/regression/options"
+	"golang.org/x/sync/errgroup"
 )
 
 // A Stepper wraps logic around taking steps (calculating new coefficients' values).
@@ -60,21 +61,29 @@ type batchStepper struct {
 
 func (s *batchStepper) TakeStep() error {
 	nc := make([]float64, len(s.coeffs))
+	var g errgroup.Group
 	for j := 0; j < len(s.coeffs); j++ {
-		// Calculate partial derivative.
-		var pd float64
-		for i := 0; i < len(s.x); i++ {
-			hr, err := s.hypho(s.x[i], s.coeffs)
-			if err != nil {
-				return err
+		j := j
+		g.Go(func() error {
+			// Calculate partial derivative.
+			var pd float64
+			for i := 0; i < len(s.x); i++ {
+				hr, err := s.hypho(s.x[i], s.coeffs)
+				if err != nil {
+					return err
+				}
+				pd += (s.y[i] - hr) * s.x[i][j]
 			}
-			pd += (s.y[i] - hr) * s.x[i][j]
-		}
-		// Assign new value to the new coefficients vector.
-		nc[j] = s.coeffs[j] + s.lr*pd
-		if math.IsNaN(nc[j]) || math.IsInf(nc[j], 0) {
-			return regression.ErrCannotConverge
-		}
+			// Assign new value to the new coefficients vector.
+			nc[j] = s.coeffs[j] + s.lr*pd
+			if math.IsNaN(nc[j]) || math.IsInf(nc[j], 0) {
+				return regression.ErrCannotConverge
+			}
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return err
 	}
 	s.coeffs = nc
 	return nil
@@ -88,15 +97,23 @@ type stochasticStepper struct {
 
 func (s *stochasticStepper) TakeStep() error {
 	nc := make([]float64, len(s.coeffs))
+	var g errgroup.Group
 	for j := 0; j < len(s.coeffs); j++ {
-		hr, err := s.hypho(s.x[s.i], s.coeffs)
-		if err != nil {
-			return err
-		}
-		nc[j] = s.coeffs[j] + s.lr*(s.y[s.i]-hr)*s.x[s.i][j]
-		if math.IsNaN(nc[j]) || math.IsInf(nc[j], 0) {
-			return regression.ErrCannotConverge
-		}
+		j := j
+		g.Go(func() error {
+			hr, err := s.hypho(s.x[s.i], s.coeffs)
+			if err != nil {
+				return err
+			}
+			nc[j] = s.coeffs[j] + s.lr*(s.y[s.i]-hr)*s.x[s.i][j]
+			if math.IsNaN(nc[j]) || math.IsInf(nc[j], 0) {
+				return regression.ErrCannotConverge
+			}
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return err
 	}
 	s.i++
 	if s.i == len(s.y) {
